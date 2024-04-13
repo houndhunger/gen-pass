@@ -16,28 +16,36 @@ SCOPE_CREDS = CREDS.with_scopes(SCOPE)
 GSPREAD_CLIENT = gspread.authorize(SCOPE_CREDS)
 SHEET = GSPREAD_CLIENT.open('password_gen')
 
-def program():
+def start():
+    settings = {
+    "L": 15,  # Password Length
+    "U": 'Yes',  # Use uppercase
+    "O": 'Yes',  # Use lowercase
+    "N": 'No',  # Use numbers
+    "S": 'No'  # Use special characters
+    }
+    loop(settings)
+    end()
+
+def loop(settings):
     """
-    Keeps program running till the End of Program
+    Keeps program looping till the End of Program
+    Adds extra blank rows to fill the screen to achieve page effect
+    Displays Status message and Input
     """
-    end = False
     valid = False
     inp = ""
     message = ""
 
-    while not(end):
+    while True:
         printed_rows = 13 #increase by every extra print - row
 
         rows, columns = get_terminal_size()
 
-        if inp.upper() == "E":
-            #end = True
-            break;  
-        front_page()
-        
+        ### building page ###
+        front_page(settings)
         if message != "":
-            printed_rows += 6
-
+            printed_rows += 6 #Edit when different Message row count are introduced
         #blank rows to fill the terminal
         for i in (range(rows - printed_rows)):
             print("")
@@ -54,14 +62,28 @@ def program():
         inp = input('Choose action: ')
         valid, message = input_valid(inp)
 
+        inp = inp.upper()
+        if inp == 'L':
+            pass
+        elif inp in ('U', 'O', 'N', 'S'):
+            settings[inp.upper()] = flip_yes_no(settings[inp.upper()])
+        elif inp == 'G':
+            pass
+        elif inp == 'E':
+            break;  
 
-    print('\n***\nEnding Password Generator.\nMemory has been cleared.\nStay safe and Goodbye.')
+def flip_yes_no(value):
+    value = 'No' if value == 'Yes' else 'Yes'
+    return value
 
-def front_page():
+def end():
+        print('\n***\nEnding Password Generator.\nMemory has been cleared.\nStay safe and Goodbye.')
+
+def front_page(settings):
     """
-    Display front page containing: Settings info, Action options, Status message and Input
+    Display front page containing: Settings info, Action options
     """
-
+    #use when working with google sheet is required
     #settings = SHEET.worksheet('settings')
     #data = settings.get_all_values()
     #print(data)
@@ -69,11 +91,11 @@ def front_page():
     print("*** Password Generator ***")
     print("")
     print("Settings:")
-    print("[L] Password Length: <15>")
-    print("[U] Use uppercase: <Yes>")
-    print("[O] Use lowercase: <Yes>")
-    print("[N] Use Numbers: <No>")
-    print("[S] Use special characters: <No>")
+    print(f'[L] Password Length: <{settings["L"]}>')
+    print(f'[U] Use uppercase: <{settings["U"]}>')
+    print(f'[O] Use lowercase: <{settings["O"]}>')
+    print(f'[N] Use Numbers: <{settings["N"]}>')
+    print(f'[S] Use special characters: <{settings["S"]}>')
     print("")
     print("Generated password: ")
     print("")
@@ -91,45 +113,14 @@ def input_valid(inp):
         return False, "Input value is invalid. \nType in 'L' 'U', 'O', 'N', 'S', 'G', 'E' \nor 'l' 'u', 'o', 'n', 's', 'g', 'e'."
 
 
+import os
 
 def get_terminal_size():
-    import sys
-    import subprocess
+    rows, columns = os.popen('stty size', 'r').read().split()
+    return int(rows), int(columns)
 
-    def ioctl_GWINSZ(fd):
-        try:
-            import fcntl
-            import termios
-            import struct
-            return struct.unpack('hh', fcntl.ioctl(fd, termios.TIOCGWINSZ, '1234'))
-        except:
-            return None
-
-    # Try to get terminal size using os.get_terminal_size() if available
-    try:
-        import os
-        size = os.get_terminal_size()
-        return size.lines, size.columns
-    except:
-        pass
-
-    # Try to get terminal size using ioctl
-    for fd in (0, 1, 2):
-        sz = ioctl_GWINSZ(fd)
-        if sz:
-            return sz
-
-    # Try to get terminal size using subprocess and stty
-    try:
-        sz = subprocess.check_output(['stty', 'size']).split()
-        return int(sz[0]), int(sz[1])
-    except:
-        pass
-
-    # Default size if all methods fail
-    return 25, 80  # Default to 25 lines and 80 columns
 
 """
-Start of Password Generator Program
+Start Password Generator Program
 """
-program()
+start()
