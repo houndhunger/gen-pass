@@ -25,12 +25,12 @@ def start():
     }
 
     settings = {
-    "L": {"min": 8, "max": 20},  # Password Length
-    "U": {"value": "Yes", "min": 5, "max": 10},  # Use uppercase
-    "O": {"value": "Yes", "min": 5, "max": 10},  # Use lowercase
-    "N": {"value": "No", "min": 5, "max": 10},   # Use numbers
-    "S": {"value": "No", "min": 5, "max": 10},   # Use special characters
-    "G": {"value": ""}                  # Generated Password
+    'L': {'name': 'Password Length', 'min': 8, 'max': 20},  # Password Length
+    'U': {'name': 'Use uppercase', 'value': 'Yes', 'min': 5, 'max': 10},  # Use uppercase
+    'O': {'name': 'Use lowercase', 'value': 'Yes', 'min': 5, 'max': 10},  # Use lowercase
+    'N': {'name': 'Use Numbers', 'value': 'No', 'min': 5, 'max': 10},   # Use numbers
+    'S': {'name': 'Use special characters', 'value': 'No', 'min': 5, 'max': 10},   # Use special characters
+    'G': {'name': 'Generate Passowrd', 'value': ''}                  # Generated Password
     }
 
     #print(settings2["U"]["value"])
@@ -48,9 +48,10 @@ def loop(settings):
     valid = False
     inp = ""
     message = ""
+    input_message = default_input_message()
 
     while True:
-        printed_rows = 14 #increase by every extra print - row
+        printed_rows = 15 #increase by every extra print - row
 
         rows, columns = get_terminal_size()
 
@@ -58,20 +59,15 @@ def loop(settings):
         front_page(settings)
         if message != "":
             printed_rows += 6 #Edit when different Message row count are introduced
+        
         #blank rows to fill the terminal
         for i in (range(rows - printed_rows)):
             print("")
-        
-        #print(f'valid: {valid}, message: "{message}"')
-
-        #print("Terminal width:", columns)
-        #print(f'Terminal height: {rows}')
-        #print(f'Printed rows: {printed_rows}')
 
         if message != "":
             print(f'\nStatus message:\n{message}\n')
 
-        inp = input('Choose action: ')
+        inp = input(input_message)
         inp = inp.upper()
         valid, message = input_valid(inp)
 
@@ -80,6 +76,7 @@ def loop(settings):
             pass
         elif inp in ('U', 'O', 'N', 'S'):
             settings[inp]["value"] = flip_yes_no(settings[inp]["value"])
+            settings[inp], input_message = set_parameter(settings[inp], inp)
         elif inp == 'G':
             settings[inp]["value"] = generate_password(settings)
         elif inp == 'E':
@@ -88,6 +85,29 @@ def loop(settings):
 def flip_yes_no(value):
     value = 'No' if value == 'Yes' else 'Yes'
     return value
+
+#I HAVE STOPPED HERE, NEXT IS KEEP UPDATING INPUT_MESSAGE UNTIL IT IS FINISHED
+def set_parameter(param, inp):
+    if inp in ('U', 'O', 'N', 'S'):
+        input_message = " Please enter 'Y', 'N' or '\\' for escape."
+    elif inp == 'Y':
+        input_message = " Please enter Minimum count or '\\' for escape."
+    elif isinstance(inp, int):
+        input_message = " Please enter Maximum count or '\\' for escape."
+    elif inp == '\\':
+        input_message = default_input_message()
+    return param, input_message
+
+def default_input_message():
+    return 'Choose action: '
+
+
+    """
+    On choosing action U f.e.: 
+    Ask for value: Y / N , error & ask again, escape. 
+    If Yes, ask for Min, error & ask again, escape. 
+    And ask for Max, error & ask again, escape.
+    """
 
 import random
 import string
@@ -144,17 +164,18 @@ def front_page(settings):
     """
     # Format the settings as a list of lists for tabulate
     settings_table = [
-    ["[L] Password Length", "", f"<{settings['L']['min']}>", f"<{settings['L']['max']}>"],
-    ["[U] Use uppercase", f"<{settings['U']['value']}>", f"<{settings['U']['min']}>", f"<{settings['U']['max']}>"],
-    ["[O] Use lowercase", f"<{settings['O']['value']}>", f"<{settings['O']['min']}>", f"<{settings['O']['max']}>"],
-    ["[N] Use Numbers", f"<{settings['N']['value']}>", f"<{settings['N']['min']}>", f"<{settings['N']['max']}>"],
-    ["[S] Use special characters", f"<{settings['S']['value']}>", f"<{settings['S']['min']}>", f"<{settings['S']['max']}>"],
+    ["[L]", settings['L']['name'], "", f"<{settings['L']['min']}>", f"<{settings['L']['max']}>"],
+    ["[U]", settings['U']['name'], f"<{settings['U']['value']}>", f"<{settings['U']['min']}>", f"<{settings['U']['max']}>"],
+    ["[O]", settings['O']['name'], f"<{settings['O']['value']}>", f"<{settings['O']['min']}>", f"<{settings['O']['max']}>"],
+    ["[N]", settings['N']['name'], f"<{settings['N']['value']}>", f"<{settings['N']['min']}>", f"<{settings['N']['max']}>"],
+    ["[S]", settings['S']['name'], f"<{settings['S']['value']}>", f"<{settings['S']['min']}>", f"<{settings['S']['max']}>"],
     ]
  
-    print(tabulate(settings_table, headers=["Parameter:", "Value:", "Min:", "Max:"]))
-    print(f'Generated password: {settings["G"]["value"]}')
+    print(tabulate(settings_table, headers=["Action key:", "Parameter:", "Value:", "Min:", "Max:"]))
     print("")
     print("[G] Generate Passowrd, [E] End Program")
+    print("")
+    print(f'* Generated password *\n {settings["G"]["value"]}')
 
 def tabulate(table, headers):
     # Combine the headers with the table data
@@ -174,8 +195,8 @@ def tabulate(table, headers):
     for row in formatted_table:
         table +=" | ".join(row) + "\n"
     
-    return table
-    
+    return table[:-1]
+
 
 def input_valid(inp):
     """
