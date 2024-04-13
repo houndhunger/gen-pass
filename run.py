@@ -16,8 +16,27 @@ SCOPE_CREDS = CREDS.with_scopes(SCOPE)
 GSPREAD_CLIENT = gspread.authorize(SCOPE_CREDS)
 SHEET = GSPREAD_CLIENT.open('password_gen')
 
-settings = SHEET.worksheet('settings')
+def front_page():
+    """
+    Display front page containing: Settings info, Action options, Status message and Input
+    """
 
-data = settings.get_all_values()
+    #settings = SHEET.worksheet('settings')
+    #data = settings.get_all_values()
+    #print(data)
 
-print(data)
+    print("*** Password Generator ***")
+    print("")
+    print("Settings:")
+    print("[L] Password Length: <15>")
+    print("[U] Use uppercase: <Yes>")
+    print("[O] Use lowercase: <Yes>")
+    print("[N] Use Numbers: <No>")
+    print("[S] Use special characters: <No>")
+    print("")
+    print("Generated password: ")
+    print("")
+    print("[G] Generate Passowrd, [E] End Program")
+    inp = input("Choose action: ")
+
+front_page()
