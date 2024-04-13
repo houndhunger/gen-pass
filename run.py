@@ -1,5 +1,3 @@
-# Your code goes here.
-# You can delete these comments, but do not change the name of this file
 # Write your code to expect a terminal of 80 characters wide and 24 rows high
 
 import gspread 
@@ -22,7 +20,8 @@ def start():
     "U": 'Yes',  # Use uppercase
     "O": 'Yes',  # Use lowercase
     "N": 'No',  # Use numbers
-    "S": 'No'  # Use special characters
+    "S": 'No',  # Use special characters
+    "G": ''  # Generated Password
     }
     loop(settings)
     end()
@@ -60,21 +59,29 @@ def loop(settings):
             print(f'\nStatus message:\n{message}\n')
 
         inp = input('Choose action: ')
+        inp = inp.upper()
         valid, message = input_valid(inp)
 
         inp = inp.upper()
         if inp == 'L':
             pass
         elif inp in ('U', 'O', 'N', 'S'):
-            settings[inp.upper()] = flip_yes_no(settings[inp.upper()])
+            settings[inp] = flip_yes_no(settings[inp])
         elif inp == 'G':
-            pass
+            settings[inp] = generate_password(settings)
         elif inp == 'E':
             break;  
 
 def flip_yes_no(value):
     value = 'No' if value == 'Yes' else 'Yes'
     return value
+
+import random
+import string
+def generate_password(settings):
+    characters = string.ascii_letters + string.digits + string.punctuation
+    password = ''.join(random.choice(characters) for _ in range(settings['L']))
+    return password
 
 def end():
         print('\n***\nEnding Password Generator.\nMemory has been cleared.\nStay safe and Goodbye.')
@@ -97,7 +104,7 @@ def front_page(settings):
     print(f'[N] Use Numbers: <{settings["N"]}>')
     print(f'[S] Use special characters: <{settings["S"]}>')
     print("")
-    print("Generated password: ")
+    print(f'Generated password: <{settings["G"]}>')
     print("")
     print("[G] Generate Passowrd, [E] End Program")
 
@@ -107,14 +114,12 @@ def input_valid(inp):
     """
     message = ""
 
-    if inp.upper() in ('L', 'U', 'O', 'N', 'S', 'G', 'E'):
+    if inp in ('L', 'U', 'O', 'N', 'S', 'G', 'E'):
         return True, message
     else:
         return False, "Input value is invalid. \nType in 'L' 'U', 'O', 'N', 'S', 'G', 'E' \nor 'l' 'u', 'o', 'n', 's', 'g', 'e'."
 
-
 import os
-
 def get_terminal_size():
     rows, columns = os.popen('stty size', 'r').read().split()
     return int(rows), int(columns)
