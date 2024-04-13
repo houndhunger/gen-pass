@@ -15,7 +15,7 @@ GSPREAD_CLIENT = gspread.authorize(SCOPE_CREDS)
 SHEET = GSPREAD_CLIENT.open('password_gen')
 
 def start():
-    settings = {
+    exsettings = {
     "L": 15,  # Password Length
     "U": 'Yes',  # Use uppercase
     "O": 'Yes',  # Use lowercase
@@ -23,6 +23,19 @@ def start():
     "S": 'No',  # Use special characters
     "G": ''  # Generated Password
     }
+
+    settings = {
+    "L": {"min": 8, "max": 20},  # Password Length
+    "U": {"value": "Yes", "min": 5, "max": 10},  # Use uppercase
+    "O": {"value": "Yes", "min": 5, "max": 10},  # Use lowercase
+    "N": {"value": "No", "min": 5, "max": 10},   # Use numbers
+    "S": {"value": "No", "min": 5, "max": 10},   # Use special characters
+    "G": {"value": ""}                  # Generated Password
+    }
+
+    #print(settings2["U"]["value"])
+
+
     loop(settings)
     end()
 
@@ -37,7 +50,7 @@ def loop(settings):
     message = ""
 
     while True:
-        printed_rows = 13 #increase by every extra print - row
+        printed_rows = 14 #increase by every extra print - row
 
         rows, columns = get_terminal_size()
 
@@ -66,9 +79,9 @@ def loop(settings):
         if inp == 'L':
             pass
         elif inp in ('U', 'O', 'N', 'S'):
-            settings[inp] = flip_yes_no(settings[inp])
+            settings[inp]["value"] = flip_yes_no(settings[inp]["value"])
         elif inp == 'G':
-            settings[inp] = generate_password(settings)
+            settings[inp]["value"] = generate_password(settings)
         elif inp == 'E':
             break;  
 
@@ -79,8 +92,32 @@ def flip_yes_no(value):
 import random
 import string
 def generate_password(settings):
-    characters = string.ascii_letters + string.digits + string.punctuation
-    password = ''.join(random.choice(characters) for _ in range(settings['L']))
+    #characters = string.ascii_letters + string.digits + string.punctuation
+    #password = ''.join(random.choice(characters) for _ in range(settings['L']))
+    #return password
+
+    # Define character sets
+    letters = string.ascii_letters
+    digits = string.digits
+    punctuation = string.punctuation
+
+    password = ''
+
+    # Generate password components
+    if settings['U']["value"] == 'Yes': 
+        password += ''.join(random.choices(letters.upper(), k=10))
+    if settings['O']["value"] == 'Yes': 
+        password += ''.join(random.choices(letters.lower(), k=10))
+    if settings['N']["value"] == 'Yes': 
+        password += ''.join(random.choices(digits, k=5))
+    if settings['S']["value"] == 'Yes': 
+        password += ''.join(random.choices(punctuation, k=2))
+
+    # Shuffle the password to ensure randomness
+    password_list = list(password)
+    random.shuffle(password_list)
+    password = ''.join(password_list)
+
     return password
 
 def end():
@@ -97,16 +134,48 @@ def front_page(settings):
 
     print("*** Password Generator ***")
     print("")
-    print("Settings:")
-    print(f'[L] Password Length: <{settings["L"]}>')
-    print(f'[U] Use uppercase: <{settings["U"]}>')
-    print(f'[O] Use lowercase: <{settings["O"]}>')
-    print(f'[N] Use Numbers: <{settings["N"]}>')
-    print(f'[S] Use special characters: <{settings["S"]}>')
-    print("")
-    print(f'Generated password: <{settings["G"]}>')
+    print("* Settings *")
+    """
+    print(f'[L] Password Length: Min:<{settings["L"]["min"]}>  Max:<{settings["L"]["max"]}>')
+    print(f'[U] Use uppercase:<{settings["U"]["value"]}>  Min:<{settings["U"]["min"]}>  Max:<{settings["U"]["max"]}>')
+    print(f'[O] Use lowercase:<{settings["O"]["value"]}>  Min:<{settings["O"]["min"]}>  Max:<{settings["O"]["max"]}>')
+    print(f'[N] Use Numbers:<{settings["N"]["value"]}>  Min:<{settings["N"]["min"]}>  Max:<{settings["N"]["max"]}>')
+    print(f'[S] Use special characters:<{settings["S"]["value"]}>  Min:<{settings["S"]["min"]}>  Max:<{settings["S"]["max"]}>')
+    """
+    # Format the settings as a list of lists for tabulate
+    settings_table = [
+    ["[L] Password Length", "", f"<{settings['L']['min']}>", f"<{settings['L']['max']}>"],
+    ["[U] Use uppercase", f"<{settings['U']['value']}>", f"<{settings['U']['min']}>", f"<{settings['U']['max']}>"],
+    ["[O] Use lowercase", f"<{settings['O']['value']}>", f"<{settings['O']['min']}>", f"<{settings['O']['max']}>"],
+    ["[N] Use Numbers", f"<{settings['N']['value']}>", f"<{settings['N']['min']}>", f"<{settings['N']['max']}>"],
+    ["[S] Use special characters", f"<{settings['S']['value']}>", f"<{settings['S']['min']}>", f"<{settings['S']['max']}>"],
+    ]
+ 
+    print(tabulate(settings_table, headers=["Parameter:", "Value:", "Min:", "Max:"]))
+    print(f'Generated password: {settings["G"]["value"]}')
     print("")
     print("[G] Generate Passowrd, [E] End Program")
+
+def tabulate(table, headers):
+    # Combine the headers with the table data
+    all_data = [headers] + table
+
+    # Find the maximum width of each column
+    column_widths = [max(len(str(row[i])) for row in all_data) for i in range(len(headers))]
+
+    # Format each row with extra spaces to achieve aligned look
+    formatted_table = []
+    for row in all_data:
+        formatted_row = [str(cell).ljust(column_widths[i]) for i, cell in enumerate(row)]
+        formatted_table.append(formatted_row)
+
+    table = ""
+    # Print the formatted table
+    for row in formatted_table:
+        table +=" | ".join(row) + "\n"
+    
+    return table
+    
 
 def input_valid(inp):
     """
