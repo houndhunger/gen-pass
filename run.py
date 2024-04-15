@@ -165,6 +165,25 @@ def build_screen(settings, password, input_message):
     input_value = input(input_message).upper()
     return input_value
 
+def action_status(action):
+    status = f"Action status:"
+    # Check if 'value' key exists in the action dictionary
+    if 'value' in action:
+        status += f" {action['name']} <{action['value']}>,"  
+        # Check if 'value' is 'No' and return status if it is
+        if action['value'] == 'No':
+            return status
+    # Add 'Min' and 'Max' to the status
+    status += f" Min: <{action.get('min', '')}>, Max: <{action.get('max', '')}>."
+    return status
+
+def action_section(action):
+    #Action Name - Header
+    section = f"* {action['name']} *\n"
+    #Action status
+    section += f"{action_status(action)}\n"
+    return section    
+
 def input_valid(input_value):
     """
     Checks if user input is valid, returns true if it is, if not it will return message
@@ -179,24 +198,32 @@ def input_valid(input_value):
 def screen_and_get_max(settings, password, input_value, input_message, action):
     while True:
         input_value = build_screen(settings, password+"min", input_message)
-                
+
         # Check input
         try:
-            int(input_value)
-            if (int(input_value) >= 1 or int(input_value) <= 1024) and (int(input_value) >= int(settings[action]['min'])):
+            input_value = int(input_value)
+            if (input_value >= 1 or input_value <= 1024) and (input_value >= settings[action]['min']):
                 settings[action]['max'] = input_value
-                input_message = f"{settings[action]['name']}: \nYou set Maximum value to {settings[action]['max']}. \n" + default_input_message()
+                input_message = action_section(settings[action])
+                input_message += f"\nYou set Maximum value to {settings[action]['max']}."
+                input_message += f"\n{default_input_message()}"
                 break
         except ValueError:
             if input_value == '\\' and int(settings[action]['min']) <= int(settings[action]['max']):
-                input_message = f"You cancelled {settings[action]['name']} action. \n" + default_input_message()
+                input_message = action_section(settings[action])
+                input_message += f"\nYou cancelled {settings[action]['name']} action."
+                input_message += f"\n{default_input_message()}"
                 break
             elif int(settings[action]['min']) > int(settings[action]['max']):
-                input_message = f"{settings[action]['name']}: \nMinimum cannot be more then Maximum. \nPlease enter Maximum count: "
+                input_message = action_section(settings[action])
+                input_message += f"\nMinimum cannot be more then Maximum."
+                input_message += f"\nPlease enter Maximum count: "
             elif input_value == '':
                 continue
             else:
-                input_message = f"{settings[action]['name']}: \nInvalid value! \nPlease enter Maximum count between 1 and 1024 \nand bigger then Minimum count: "
+                input_message = action_section(settings[action])
+                input_message += f"\nInvalid value!"
+                input_message += f"\nPlease enter Maximum count between 1 and 1024 and bigger then Minimum: "
     return settings, input_message
 
 def screen_and_get_min(settings, password, input_value, input_message, action):
@@ -205,50 +232,64 @@ def screen_and_get_min(settings, password, input_value, input_message, action):
 
         # Check input
         try:
-            int(input_value)
-            if int(input_value) >= 1 or int(input_value) <= 1024:
+            input_value = int(input_value)
+            if input_value >= 1 or input_value <= 1024:
                 settings[action]['min'] = input_value
-                input_message = f"{settings[action]['name']}: \nYou selected set Minimum value to {settings[action]['min']}. \nPlease enter Maximum count: "
+                input_message = action_section(settings[action])
+                input_message += f"\nYou set Minimum count to {settings[action]['min']}."
+                input_message += f"\nPlease enter Maximum count: "
                 settings, input_message = screen_and_get_max(settings, password, input_value, input_message, action)
                 break
-            elif int(input_value) < 1 or int(input_value) > 1024:
-                input_message = f"{settings[action]['name']}: \nInvalid value <{input_value}>! \nPlease enter Minimum count between 1 and 1024: "
             else:
-                input_message = f"{settings[action]['name']}: \nInvalid key <{input_value}>! \nPlease enter Minimum count: " #this won't run at all     
+                input_message = action_section(settings[action])
+                input_message += f"\nInvalid value <{input_value}>!"
+                input_message += f"\nPlease enter Minimum count between 1 and 1024: "  
         except ValueError:
             if input_value == '\\':
-                input_message = f"You cancelled {settings[action]['name']} action. \n" + default_input_message()
+                input_message = action_section(settings[action])
+                input_message += f"\nYou cancelled {settings[action]['name']} action."
+                input_message += f"\n{default_input_message()}"
                 break
             elif input_value == '':
                 continue
             else:
-                input_message = f"{settings[action]['name']}: \nInvalid value! \nPlease enter Minimum count between 1 and 1024: "
+                input_message = action_section(settings[action])
+                input_message += f"\nInvalid value!"
+                input_message += f"\nPlease enter Minimum count between 1 and 1024: "
     return settings, input_message
 
 def screen_and_get_yes_no(settings, password, input_value, input_message, action):
     while True:
         #build screen
         input_value = build_screen(settings, password+"YN", input_message)
-        
+
         #check inupt
         if input_value == 'Y':
             settings[action]['value'] = 'Yes'
-            input_message = f"{settings[action]['name']}: Please enter Minimum count: "
+            input_message = action_section(settings[action])
+            input_message += f"\nYou selected 'Yes'."
+            input_message += f"\nPlease enter Minimum count: "
             settings, input_message = screen_and_get_min(settings, password, input_value, input_message, action)
             break
         elif input_value == 'N':
             settings[action]['value'] = 'No'
-            input_message = f"You selected <No> for {settings[action]['name']}. \n" + default_input_message()
+            #input_message = action_section(settings[action])
+            input_message += f"\nYou selected 'No'."
+            input_message += f"\n{default_input_message()}"
             break
         elif input_value == '\\':
-            input_message = f"You cancelled {settings[input_value]['name']} action. \n" + default_input_message()
+            input_message = action_section(settings[action])
+            input_message += f"\nYou cancelled {settings[action]['name']} action."
+            input_message += f"\n{default_input_message()}"
             break
         elif input_value == '':
              pass
         else:
-            input_message = f"Invalid key! \nDo you want to use {settings[action]['name']}? \n Y Please enter 'Y' for Yes or 'N' for No: "
-            if input_value in ('Y', 'N'):
-                input_value = action
+            input_message = action_section(settings[action])
+            input_message += f"\nInvalid key!"
+            input_message += f"\nPlease enter 'Y' for Yes or 'N' for No: "
+            #if input_value in ('Y', 'N'):
+            #    input_value = action
     return settings, input_message
 
 def screen_and_get_action(settings):
@@ -261,22 +302,30 @@ def screen_and_get_action(settings):
 
     while True:
         input_value = build_screen(settings, password+"act", input_message)
-                
+
         # Check input
         if input_value == 'L':
-            input_message = f"{settings[input_value]['name']}: Please enter Minimum count or '\\' to Cancel: "
-            settings = screen_and_get_min(settings, password, input_value, input_message, input_value, input_message)
+            input_message = action_section(settings[input_value])  
+            input_message += f"\n"
+            input_message += f"\nPlease enter Minimum count: "
+            settings, input_message = screen_and_get_min(settings, password, input_value, input_message, input_value)
         elif input_value in ('U', 'O', 'N', 'S'):
-            input_message = f"Do you want to use {settings[input_value]['name']}?\n X Please enter 'Y' for Yes or 'N' for No:  "
+            input_message = action_section(settings[input_value])  
+            input_message += f"\nDo you want to use {settings[input_value]['name']}?"
+            input_message += f"\nPlease enter 'Y' for Yes or 'N' for No:  "
             settings, input_message = screen_and_get_yes_no(settings, password, input_value, input_message, input_value)
         elif input_value == 'G':
+            input_message = f"\nPasswrod Has been Generated."
+            input_message += f"\n{default_input_message()}"
             password = generate_password(settings)
         elif input_value == '':
              pass
         elif input_value == 'E':
             break
         else:
-            input_message = f"Invalid key! Plese Enter the key. \nEather uppercase 'L', 'U', 'O', 'N', 'S', 'G', 'E' \nor lowercase 'l', 'u', 'o', 'n', 's', 'g', 'e':"
+            input_message = f"Invalid key! Plese Enter the key"
+            input_message += f"\neather uppercase 'L', 'U', 'O', 'N', 'S', 'G', 'E'"
+            input_message += f"\nor lowercase 'l', 'u', 'o', 'n', 's', 'g', 'e':"
 
 """
 program_loop
