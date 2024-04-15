@@ -28,6 +28,18 @@ def flip_yes_no(value):
     value = 'No' if value == 'Yes' else 'Yes'
     return value
 
+def sum_min_max():
+    char_type = ('U', 'O', 'N', 'S')
+    sum_lmin = 0
+    sum_lmin = 0
+    for char in char_type:
+        if settings[char]['value'] == 'Yes':
+            sum_lmin += settings[char]['min']
+            sum_lmax += settings[char]['max']
+    settings['SUM']['min'] = sum_lmin
+    settings['SUM']['max'] = sum_lmax
+    return settings, sum_lmin, sum_lmax
+
 import random
 import string
 def generate_password(settings):
@@ -42,24 +54,36 @@ def generate_password(settings):
 
     password = ''
 
-    total_min = sum(data['min'] for data in settings.values() if 'min' in data)
-    if total_min - settings['L']['min'] > settings['L']['max']:
-        #Sum of Mininals is bigger then Maximal Password Length. Change Settings to satisfy this condition.
-        pass
+    settings, sum_lmin, sum_lmax = sum_min_max(settings):
+
+    length_min = sum_lmin if sum_lmin > settings['L']['min'] else settings['L']['min']
+    length_max = sum_lmax if sum_lmax > settings['L']['max'] else settings['L']['min']
+
+
+    if sum_lmin <= settings['L']['max'] and sum_lmax >= settings['L']['min'] and length_max - length_min >= 0:
+        print(f"length_min: {length_min}")
+        print(f"length_max: {length_max}")
     else:
-        #  settings['L']['max'] * settings['U']['min'] * Radnom : something liek this
-        pass
-
-
+        #Sum of Mininals is bigger then Maximal Password Length. Change Settings to satisfy this condition.
+    
+    char_type = ('U', 'O', 'N', 'S')
+    password_components = {'U': letters.upper(), 'O': letters.lower(), 'N': digits, 'S': punctuation}
     # Generate password components
-    if settings['U']["value"] == 'Yes': 
-        password += ''.join(random.choices(letters.upper(), k=10))
-    if settings['O']["value"] == 'Yes': 
-        password += ''.join(random.choices(letters.lower(), k=10))
-    if settings['N']["value"] == 'Yes': 
-        password += ''.join(random.choices(digits, k=5))
-    if settings['S']["value"] == 'Yes': 
-        password += ''.join(random.choices(punctuation, k=2))
+    for char in char_type:
+        if settings[char]["value"] == 'Yes':
+            password += ''.join(random.choices(password_components[char], k=settings[char]['min']))
+
+    password = ''.join(password_list)
+
+    password_length = random.randint(length_min, length_max)
+
+    # Calculate the remaining length for the password
+    remaining_length = password_length - sum_lmin
+
+    # Fill the remaining length with random characters from lowercase and number sets 
+    if remaining_length > 0:
+        remaining_characters = ''.join(random.choices(''.join(password_components[char] for char in yes_char_types), k=remaining_length))
+        password += remaining_characters
 
     # Shuffle the password to ensure randomness
     password_list = list(password)
@@ -346,7 +370,9 @@ def main():
     'O': {'name': 'Lowercase', 'value': 'Yes', 'min': 5, 'max': 10},  # Use lowercase
     'N': {'name': 'Numbers', 'value': 'No', 'min': 5, 'max': 10},   # Use numbers
     'S': {'name': 'Special characters', 'value': 'No', 'min': 5, 'max': 10},   # Use special characters
-    'G': {'name': 'Generate Passowrd', 'value': ''}                  # Generated Password
+    'G': {'name': 'Generate Passowrd', 'value': ''}, # Generated Password?
+    'SUM': {'name': 'SUM', 'min': 0, 'max': 0} # Sum
+    'SUM-Length': {'name': 'SUM - Length', 'min': 0, 'max': 0} # Sum
     }
 
     screen_and_get_action(settings)
