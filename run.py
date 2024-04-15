@@ -15,7 +15,7 @@ GSPREAD_CLIENT = gspread.authorize(SCOPE_CREDS)
 SHEET = GSPREAD_CLIENT.open('password_gen')
 
 def default_input_message():
-    return 'Choose action: '
+    return 'Choose next action: '
 
     """
     On choosing action U f.e.: 
@@ -98,18 +98,31 @@ def settings_section(settings):
     # Format the settings as a list of lists for tabulate
     settings_table = [
     ["[L]", settings['L']['name'], "", f"<{settings['L']['min']}>", f"<{settings['L']['max']}>"],
-    ["[U]", settings['U']['name'], f"<{settings['U']['value']}>", f"<{settings['U']['min']}>", f"<{settings['U']['max']}>"],
-    ["[O]", settings['O']['name'], f"<{settings['O']['value']}>", f"<{settings['O']['min']}>", f"<{settings['O']['max']}>"],
-    ["[N]", settings['N']['name'], f"<{settings['N']['value']}>", f"<{settings['N']['min']}>", f"<{settings['N']['max']}>"],
-    ["[S]", settings['S']['name'], f"<{settings['S']['value']}>", f"<{settings['S']['min']}>", f"<{settings['S']['max']}>"],
+    
+    ["[U]", settings['U']['name'], f"<{settings['U']['value']}>", 
+    f"<{settings['U']['min'] if settings['U']['value'] != 'No' else '-'}>", 
+    f"<{settings['U']['max'] if settings['U']['value'] != 'No' else '-'}>"],
+    
+    ["[O]", settings['O']['name'], f"<{settings['O']['value']}>", 
+    f"<{settings['O']['min'] if settings['O']['value'] != 'No' else '-'}>", 
+    f"<{settings['O']['max'] if settings['O']['value'] != 'No' else '-'}>"],
+    
+    ["[N]", settings['N']['name'], f"<{settings['N']['value']}>", 
+    f"<{settings['N']['min'] if settings['N']['value'] != 'No' else '-'}>", 
+    f"<{settings['N']['max'] if settings['N']['value'] != 'No' else '-'}>"],
+    
+    ["[S]", settings['S']['name'], f"<{settings['S']['value']}>", 
+    f"<{settings['S']['min'] if settings['S']['value'] != 'No' else '-'}>", 
+    f"<{settings['S']['max'] if settings['S']['value'] != 'No' else '-'}>"],
     ]
-    print(tabulate(settings_table, headers=["Action key:", "Parameter:", "Value:", "Min:", "Max:"]))
+
+    print(tabulate(settings_table, headers=["Action key:", "Action:", "Yes/No:", "Min:", "Max:"]))
 
     return 10
     
 def password_section(password):
     print("")
-    print("[G] Generate Passowrd, [E] End Program")
+    print("[G] Generate Passowrd     [E] End Program     [\\] Cancel")
     print("")
     print(f'* Generated password *\n {password}') #later loop thorugh array of passwords
 
@@ -134,7 +147,7 @@ def blank_lines_section(printed_rows):
     for i in (range(rows - printed_rows)):
         print("")
 
-def build_screen(settings, password, input_message, input_value):
+def build_screen(settings, password, input_message):
     """
     building screen from top - header to the bottom  - input, filling the whole screen
     """
@@ -152,7 +165,6 @@ def build_screen(settings, password, input_message, input_value):
     input_value = input(input_message).upper()
     return input_value
 
-
 def input_valid(input_value):
     """
     Checks if user input is valid, returns true if it is, if not it will return message
@@ -164,6 +176,81 @@ def input_valid(input_value):
     else:
         return False, "Input value is invalid. \nType in 'L' 'U', 'O', 'N', 'S', 'G', 'E' \nor 'l' 'u', 'o', 'n', 's', 'g', 'e'."
 
+def screen_and_get_max(settings, password, input_value, input_message, action):
+    while True:
+        input_value = build_screen(settings, password+"min", input_message)
+                
+        # Check input
+        try:
+            int(input_value)
+            if (int(input_value) >= 1 or int(input_value) <= 1024) and (int(input_value) >= int(settings[action]['min'])):
+                settings[action]['max'] = input_value
+                input_message = f"{settings[action]['name']}: \nYou set Maximum value to {settings[action]['max']}. \n" + default_input_message()
+                break
+        except ValueError:
+            if input_value == '\\' and int(settings[action]['min']) <= int(settings[action]['max']):
+                input_message = f"You cancelled {settings[action]['name']} action. \n" + default_input_message()
+                break
+            elif int(settings[action]['min']) > int(settings[action]['max']):
+                input_message = f"{settings[action]['name']}: \nMinimum cannot be more then Maximum. \nPlease enter Maximum count: "
+            elif input_value == '':
+                continue
+            else:
+                input_message = f"{settings[action]['name']}: \nInvalid value! \nPlease enter Maximum count between 1 and 1024 \nand bigger then Minimum count: "
+    return settings, input_message
+
+def screen_and_get_min(settings, password, input_value, input_message, action):
+    while True:
+        input_value = build_screen(settings, password+"min", input_message)
+
+        # Check input
+        try:
+            int(input_value)
+            if int(input_value) >= 1 or int(input_value) <= 1024:
+                settings[action]['min'] = input_value
+                input_message = f"{settings[action]['name']}: \nYou selected set Minimum value to {settings[action]['min']}. \nPlease enter Maximum count: "
+                settings, input_message = screen_and_get_max(settings, password, input_value, input_message, action)
+                break
+            elif int(input_value) < 1 or int(input_value) > 1024:
+                input_message = f"{settings[action]['name']}: \nInvalid value <{input_value}>! \nPlease enter Minimum count between 1 and 1024: "
+            else:
+                input_message = f"{settings[action]['name']}: \nInvalid key <{input_value}>! \nPlease enter Minimum count: " #this won't run at all     
+        except ValueError:
+            if input_value == '\\':
+                input_message = f"You cancelled {settings[action]['name']} action. \n" + default_input_message()
+                break
+            elif input_value == '':
+                continue
+            else:
+                input_message = f"{settings[action]['name']}: \nInvalid value! \nPlease enter Minimum count between 1 and 1024: "
+    return settings, input_message
+
+def screen_and_get_yes_no(settings, password, input_value, input_message, action):
+    while True:
+        #build screen
+        input_value = build_screen(settings, password+"YN", input_message)
+        
+        #check inupt
+        if input_value == 'Y':
+            settings[action]['value'] = 'Yes'
+            input_message = f"{settings[action]['name']}: Please enter Minimum count: "
+            settings, input_message = screen_and_get_min(settings, password, input_value, input_message, action)
+            break
+        elif input_value == 'N':
+            settings[action]['value'] = 'No'
+            input_message = f"You selected <No> for {settings[action]['name']}. \n" + default_input_message()
+            break
+        elif input_value == '\\':
+            input_message = f"You cancelled {settings[input_value]['name']} action. \n" + default_input_message()
+            break
+        elif input_value == '':
+             pass
+        else:
+            input_message = f"Invalid key! \nDo you want to use {settings[action]['name']}? \n Y Please enter 'Y' for Yes or 'N' for No: "
+            if input_value in ('Y', 'N'):
+                input_value = action
+    return settings, input_message
+
 def screen_and_get_action(settings):
     """
     Keeps program looping till the End of Program
@@ -173,46 +260,23 @@ def screen_and_get_action(settings):
     input_value = ""
 
     while True:
-        input_value = build_screen(settings, password, input_message, input_value)
+        input_value = build_screen(settings, password+"act", input_message)
                 
         # Check input
         if input_value == 'L':
-            input_message = "Please enter Minimum count or '\\' for Escape to cancel the action: "
-            settings_parameter = screen_and_get_min(settings['L'], input_value, input_message)
+            input_message = f"{settings[input_value]['name']}: Please enter Minimum count or '\\' to Cancel: "
+            settings = screen_and_get_min(settings, password, input_value, input_message, input_value, input_message)
         elif input_value in ('U', 'O', 'N', 'S'):
-            input_message = "Please enter 'Y', 'N' or '\\' for Escape to cancel the action: "
-        elif input_value == 'Y':
-            input_message = "Please enter Minimum count or '\\' for Escape to cancel the action: "
-        elif input_value == 'N':
-            input_message = "Please enter Minimum count or '\\' for Escape to cancel the action: "
-        elif isinstance(input_value, int):
-            input_message = "Please enter Maximum count or '\\' for Escape to cancel the action: "
-        elif input_value == '\\':
-            input_message = "You cancelled the action.\n"
-            printed_rows += 1
-            input_message += default_input_message()
+            input_message = f"Do you want to use {settings[input_value]['name']}?\n X Please enter 'Y' for Yes or 'N' for No:  "
+            settings, input_message = screen_and_get_yes_no(settings, password, input_value, input_message, input_value)
         elif input_value == 'G':
-            settings[input_value]["value"] = generate_password(settings)
+            password = generate_password(settings)
         elif input_value == '':
-             input_message += default_input_message()
+             pass
         elif input_value == 'E':
             break
         else:
-            pass #invalid_inupt() #define this
-
-        """
-        if input_value == 'L':
-            pass
-        elif input_value in ('U', 'O', 'N', 'S'):
-            settings[input_value]["value"] = flip_yes_no(settings[input_value]["value"])
-        elif input_value == 'G':
-            settings[input_value]["value"] = generate_password(settings)
-        elif input_value == 'E':
-            break;
-        """
-
-def screen_and_get_min(parameter, input_value, input_message):
-    pass
+            input_message = f"Invalid key! Plese Enter the key. \nEather uppercase 'L', 'U', 'O', 'N', 'S', 'G', 'E' \nor lowercase 'l', 'u', 'o', 'n', 's', 'g', 'e':"
 
 """
 program_loop
@@ -240,15 +304,15 @@ any get_* contains checking input and nest in or out.
 """
 
 def end():
-        print('\n***\nEnding Password Generator.\nMemory has been cleared.\nStay safe and Goodbye.')
+        print("\n*** \nEnding Password Generator. \nMemory has been cleared. \nStay safe and Goodbye.")
 
 def main():
     settings = {
     'L': {'name': 'Password Length', 'min': 8, 'max': 20},  # Password Length
-    'U': {'name': 'Use uppercase', 'value': 'Yes', 'min': 5, 'max': 10},  # Use uppercase
-    'O': {'name': 'Use lowercase', 'value': 'Yes', 'min': 5, 'max': 10},  # Use lowercase
-    'N': {'name': 'Use Numbers', 'value': 'No', 'min': 5, 'max': 10},   # Use numbers
-    'S': {'name': 'Use special characters', 'value': 'No', 'min': 5, 'max': 10},   # Use special characters
+    'U': {'name': 'Uppercase', 'value': 'Yes', 'min': 5, 'max': 10},  # Use uppercase
+    'O': {'name': 'Lowercase', 'value': 'Yes', 'min': 5, 'max': 10},  # Use lowercase
+    'N': {'name': 'Numbers', 'value': 'No', 'min': 5, 'max': 10},   # Use numbers
+    'S': {'name': 'Special characters', 'value': 'No', 'min': 5, 'max': 10},   # Use special characters
     'G': {'name': 'Generate Passowrd', 'value': ''}                  # Generated Password
     }
 
