@@ -42,6 +42,15 @@ def generate_password(settings):
 
     password = ''
 
+    total_min = sum(data['min'] for data in settings.values() if 'min' in data)
+    if total_min - settings['L']['min'] > settings['L']['max']:
+        #Sum of Mininals is bigger then Maximal Password Length. Change Settings to satisfy this condition.
+        pass
+    else:
+        #  settings['L']['max'] * settings['U']['min'] * Radnom : something liek this
+        pass
+
+
     # Generate password components
     if settings['U']["value"] == 'Yes': 
         password += ''.join(random.choices(letters.upper(), k=10))
@@ -197,7 +206,7 @@ def input_valid(input_value):
 
 def screen_and_get_max(settings, password, input_value, input_message, action):
     while True:
-        input_value = build_screen(settings, password+"min", input_message)
+        input_value = build_screen(settings, password, input_message)
 
         # Check input
         try:
@@ -228,7 +237,7 @@ def screen_and_get_max(settings, password, input_value, input_message, action):
 
 def screen_and_get_min(settings, password, input_value, input_message, action):
     while True:
-        input_value = build_screen(settings, password+"min", input_message)
+        input_value = build_screen(settings, password, input_message)
 
         # Check input
         try:
@@ -261,7 +270,7 @@ def screen_and_get_min(settings, password, input_value, input_message, action):
 def screen_and_get_yes_no(settings, password, input_value, input_message, action):
     while True:
         #build screen
-        input_value = build_screen(settings, password+"YN", input_message)
+        input_value = build_screen(settings, password, input_message)
 
         #check inupt
         if input_value == 'Y':
@@ -326,31 +335,6 @@ def screen_and_get_action(settings):
             input_message = f"Invalid key! Plese Enter the key"
             input_message += f"\neather uppercase 'L', 'U', 'O', 'N', 'S', 'G', 'E'"
             input_message += f"\nor lowercase 'l', 'u', 'o', 'n', 's', 'g', 'e':"
-
-"""
-program_loop
-    while loop
-        draw page
-        check inputs 
-            'U', 'O', 'N', 'S': go to program_loop - send Parameter, once nest out, settings gets overwritten
-            'Y', 'N', ## - Parameter must be populated
-            'G': go beck and do while loop
-            'E': or exit
-
-on checking inputs
-    define next message
-    
-screen - header, settings, password, input message
-
-screen_and_get_action
-screen_and_get_yes_no
-screen_and_get_min
-screen_and_get_max
-screen_and_get_password
-
-any get_* contains checking input and nest in or out.
-
-"""
 
 def end():
         print("\n*** \nEnding Password Generator. \nMemory has been cleared. \nStay safe and Goodbye.")
