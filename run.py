@@ -158,7 +158,7 @@ def settings_section(settings):
     f"<{settings['S']['max'] if settings['S']['value'] != 'No' else '-'}>"]
     ]
     print(tabulate(settings_table, headers=["Action key:", "Action:", "Yes/No:", "Min: ", "Max: "]))
-    return 10
+    return 12
 
 def sum_section(settings):
 
@@ -271,9 +271,12 @@ def screen_and_get_max(settings, password, input_value, input_message, action):
             elif int(settings[action]['min']) > int(settings[action]['max']):
                 input_message = action_section(settings[action])
                 input_message += f"\nMinimum cannot be more then Maximum."
-                input_message += f"\nPlease enter Maximum count: "
+                input_message += f"\nPlease enter Maximum count<{settings[action]['max']}>: "
             elif input_value == '':
-                continue
+                input_message = action_section(settings[action])
+                input_message += f"\nYou confirmed previus Maximum value {settings[action]['max']}."
+                input_message += f"\n{default_input_message()}"
+                break
             else:
                 input_message = action_section(settings[action])
                 input_message += f"\nInvalid value!"
@@ -292,13 +295,13 @@ def screen_and_get_min(settings, password, input_value, input_message, action):
                 settings[action]['min'] = input_value
                 input_message = action_section(settings[action])
                 input_message += f"\nYou set Minimum count to {settings[action]['min']}."
-                input_message += f"\nPlease enter Maximum count: "
+                input_message += f"\nPlease enter Maximum count <{settings[action]['max']}>: "
                 settings, input_message = screen_and_get_max(settings, password, input_value, input_message, action)
                 break
             else:
                 input_message = action_section(settings[action])
                 input_message += f"\nInvalid value <{input_value}>!"
-                input_message += f"\nPlease enter Minimum count between 1 and 1024: "  
+                input_message += f"\nPlease enter Minimum count between 1 and 1024 <{settings[action]['min']}>: "  
         except ValueError:
             if input_value == '\\':
                 input_message = action_section(settings[action])
@@ -306,11 +309,15 @@ def screen_and_get_min(settings, password, input_value, input_message, action):
                 input_message += f"\n{default_input_message()}"
                 break
             elif input_value == '':
-                continue
+                input_message = action_section(settings[action])
+                input_message += f"\nYou confirmed previous Minimum count {settings[action]['min']}."
+                input_message += f"\nPlease enter Maximum count <{settings[action]['max']}>: "
+                settings, input_message = screen_and_get_max(settings, password, input_value, input_message, action)
+                break
             else:
                 input_message = action_section(settings[action])
                 input_message += f"\nInvalid value!"
-                input_message += f"\nPlease enter Minimum count between 1 and 1024: "
+                input_message += f"\nPlease enter Minimum count between 1 and 1024 <{settings[action]['min']}>: "
     return settings, input_message
 
 def screen_and_get_yes_no(settings, password, input_value, input_message, action):
@@ -323,7 +330,7 @@ def screen_and_get_yes_no(settings, password, input_value, input_message, action
             settings[action]['value'] = 'Yes'
             input_message = action_section(settings[action])
             input_message += f"\nYou selected 'Yes'."
-            input_message += f"\nPlease enter Minimum count: "
+            input_message += f"\nPlease enter Minimum count <{settings[action]['min']}>: "
             settings, input_message = screen_and_get_min(settings, password, input_value, input_message, action)
             break
         elif input_value == 'N':
@@ -338,11 +345,21 @@ def screen_and_get_yes_no(settings, password, input_value, input_message, action
             input_message += f"\n{default_input_message()}"
             break
         elif input_value == '':
-             pass
+            if settings[action]['value'] == 'Yes':
+                input_message = action_section(settings[action])
+                input_message += f"\nYou confirmed previus value 'Yes'."
+                input_message += f"\nPlease enter Minimum count <{settings[action]['min']}>: "
+                settings, input_message = screen_and_get_min(settings, password, input_value, input_message, action)
+                break 
+            elif settings[action]['value'] == 'No':
+                #input_message = action_section(settings[action])
+                input_message += f"\nYou confirmed previus value 'No'."
+                input_message += f"\n{default_input_message()}"
+                break
         else:
             input_message = action_section(settings[action])
             input_message += f"\nInvalid key!"
-            input_message += f"\nPlease enter 'Y' for Yes or 'N' for No: "
+            input_message += f"\nPlease enter 'Y' for Yes or 'N' for No <{settings[action]['value']}>: "
             #if input_value in ('Y', 'N'):
             #    input_value = action
     return settings, input_message
@@ -363,12 +380,12 @@ def screen_and_get_action(settings):
         if input_value == 'L':
             input_message = action_section(settings[input_value])  
             input_message += f"\n"
-            input_message += f"\nPlease enter Minimum count: "
+            input_message += f"\nPlease enter Minimum count <{settings[input_value]['min']}>: "
             settings, input_message = screen_and_get_min(settings, password, input_value, input_message, input_value)
         elif input_value in ('U', 'O', 'N', 'S'):
             input_message = action_section(settings[input_value])  
             input_message += f"\nDo you want to use {settings[input_value]['name']}?"
-            input_message += f"\nPlease enter 'Y' for Yes or 'N' for No:  "
+            input_message += f"\nPlease enter 'Y' for Yes or 'N' for No <{settings[input_value]['value']}>:  "
             settings, input_message = screen_and_get_yes_no(settings, password, input_value, input_message, input_value)
         elif input_value == 'G':
             input_message = f"\nPassword Has been Generated."
@@ -388,10 +405,10 @@ def end():
 
 def main():
     settings = {
-    'L': {'name': 'Password Length', 'min': 8, 'max': 20},  # Password Length
-    'U': {'name': 'Uppercase', 'value': 'Yes', 'min': 5, 'max': 10},  # Use uppercase
-    'O': {'name': 'Lowercase', 'value': 'Yes', 'min': 5, 'max': 10},  # Use lowercase
-    'N': {'name': 'Numbers', 'value': 'No', 'min': 5, 'max': 10},   # Use numbers
+    'L': {'name': 'Password Length', 'min': 4, 'max': 8},  # Password Length
+    'U': {'name': 'Uppercase', 'value': 'No', 'min': 5, 'max': 10},  # Use uppercase
+    'O': {'name': 'Lowercase', 'value': 'Yes', 'min': 4, 'max': 5},  # Use lowercase
+    'N': {'name': 'Numbers', 'value': 'Yes', 'min': 1, 'max': 2},   # Use numbers
     'S': {'name': 'Special characters', 'value': 'No', 'min': 5, 'max': 10},   # Use special characters
     'G': {'name': 'Generate Passowrd', 'value': ''}, # Generated Password?
     'SUM': {'name': 'SUM', 'min': 0, 'max': 0} # Sum
