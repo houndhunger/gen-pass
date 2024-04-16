@@ -57,16 +57,18 @@ def generate_password(settings):
     settings, sum_lmin, sum_lmax = sum_min_max(settings)
 
     length_min = sum_lmin if sum_lmin > settings['L']['min'] else settings['L']['min']
-    length_max = sum_lmax if sum_lmax > settings['L']['max'] else settings['L']['min']
+    length_max = sum_lmax if sum_lmax > settings['L']['max'] else settings['L']['max']
 
+    """
+    Add this to input message
 
     if sum_lmin <= settings['L']['max'] and sum_lmax >= settings['L']['min'] and length_max - length_min >= 0:
         print(f"length_min: {length_min}")
         print(f"length_max: {length_max}")
     else:
         print("Sum of Mininals is bigger then Maximal Password Length. Change Settings to satisfy this condition.")
-        
-    
+    """
+
     char_type = ('U', 'O', 'N', 'S')
     password_components = {'U': letters.upper(), 'O': letters.lower(), 'N': digits, 'S': punctuation}
     # Generate password components
@@ -74,12 +76,15 @@ def generate_password(settings):
         if settings[char]["value"] == 'Yes':
             password += ''.join(random.choices(password_components[char], k=settings[char]['min']))
 
-    password = ''.join(password_list)
+    #password = ''.join(password_list)
 
     password_length = random.randint(length_min, length_max)
 
     # Calculate the remaining length for the password
     remaining_length = password_length - sum_lmin
+
+    # Get character types with 'Yes' values in settings
+    yes_char_types = [char for char in char_type if settings[char]["value"] == 'Yes']
 
     # Fill the remaining length with random characters from lowercase and number sets 
     if remaining_length > 0:
@@ -160,7 +165,7 @@ def sum_section(settings):
     sum_table = [
     [settings['SUM']['name'],
     f"{settings['SUM']['min'] if settings['SUM']['min'] <= settings['L']['max'] else "!" + str(settings['SUM']['min'])}",
-    f"{settings['SUM']['max'] if settings['SUM']['max'] >= settings['L']['min'] else "!" + str(ettings['SUM']['max'])}"]
+    f"{settings['SUM']['max'] if settings['SUM']['max'] >= settings['L']['min'] else "!" + str(settings['SUM']['max'])}"]
     ]
     print("")
     print(tabulate(sum_table, headers=["Calculation:                              ", "Min: ", "Max: "]))
@@ -168,8 +173,8 @@ def sum_section(settings):
 
 def password_section(password):
     print("")
-    print("[G] Generate Passowrd     [E] End Program     [\\] Cancel")
-    print("Legend:     [] Key     <> Variable")
+    print("[G] Generate Passowrd   [E] End Program   [Enter] Skip   [\\] Cancel")
+    print("Legend:   [] Key   <> Variable")
     print("")
     print(f'* Generated password *\n {password}') #later loop thorugh array of passwords
 
@@ -366,7 +371,7 @@ def screen_and_get_action(settings):
             input_message += f"\nPlease enter 'Y' for Yes or 'N' for No:  "
             settings, input_message = screen_and_get_yes_no(settings, password, input_value, input_message, input_value)
         elif input_value == 'G':
-            input_message = f"\nPasswrod Has been Generated."
+            input_message = f"\nPassword Has been Generated."
             input_message += f"\n{default_input_message()}"
             password = generate_password(settings)
         elif input_value == '':
