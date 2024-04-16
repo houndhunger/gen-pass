@@ -28,10 +28,10 @@ def flip_yes_no(value):
     value = 'No' if value == 'Yes' else 'Yes'
     return value
 
-def sum_min_max():
+def sum_min_max(settings):
     char_type = ('U', 'O', 'N', 'S')
     sum_lmin = 0
-    sum_lmin = 0
+    sum_lmax = 0
     for char in char_type:
         if settings[char]['value'] == 'Yes':
             sum_lmin += settings[char]['min']
@@ -54,7 +54,7 @@ def generate_password(settings):
 
     password = ''
 
-    settings, sum_lmin, sum_lmax = sum_min_max(settings):
+    settings, sum_lmin, sum_lmax = sum_min_max(settings)
 
     length_min = sum_lmin if sum_lmin > settings['L']['min'] else settings['L']['min']
     length_max = sum_lmax if sum_lmax > settings['L']['max'] else settings['L']['min']
@@ -64,7 +64,8 @@ def generate_password(settings):
         print(f"length_min: {length_min}")
         print(f"length_max: {length_max}")
     else:
-        #Sum of Mininals is bigger then Maximal Password Length. Change Settings to satisfy this condition.
+        print("Sum of Mininals is bigger then Maximal Password Length. Change Settings to satisfy this condition.")
+        
     
     char_type = ('U', 'O', 'N', 'S')
     password_components = {'U': letters.upper(), 'O': letters.lower(), 'N': digits, 'S': punctuation}
@@ -130,12 +131,15 @@ def settings_section(settings):
 
     # Format the settings as a list of lists for tabulate
     settings_table = [
+    ["---","---","---","---","---"],
     ["[L]", settings['L']['name'], "", f"<{settings['L']['min']}>", f"<{settings['L']['max']}>"],
+    
+    ["---","---","---","---","---"],
     
     ["[U]", settings['U']['name'], f"<{settings['U']['value']}>", 
     f"<{settings['U']['min'] if settings['U']['value'] != 'No' else '-'}>", 
-    f"<{settings['U']['max'] if settings['U']['value'] != 'No' else '-'}>"],
-    
+    f"<{settings['U']['max'] if settings['U']['value'] != 'No' else '-'}>"],  
+
     ["[O]", settings['O']['name'], f"<{settings['O']['value']}>", 
     f"<{settings['O']['min'] if settings['O']['value'] != 'No' else '-'}>", 
     f"<{settings['O']['max'] if settings['O']['value'] != 'No' else '-'}>"],
@@ -146,20 +150,30 @@ def settings_section(settings):
     
     ["[S]", settings['S']['name'], f"<{settings['S']['value']}>", 
     f"<{settings['S']['min'] if settings['S']['value'] != 'No' else '-'}>", 
-    f"<{settings['S']['max'] if settings['S']['value'] != 'No' else '-'}>"],
+    f"<{settings['S']['max'] if settings['S']['value'] != 'No' else '-'}>"]
     ]
-
-    print(tabulate(settings_table, headers=["Action key:", "Action:", "Yes/No:", "Min:", "Max:"]))
-
+    print(tabulate(settings_table, headers=["Action key:", "Action:", "Yes/No:", "Min: ", "Max: "]))
     return 10
-    
+
+def sum_section(settings):
+
+    sum_table = [
+    [settings['SUM']['name'],
+    f"{settings['SUM']['min'] if settings['SUM']['min'] <= settings['L']['max'] else "!" + str(settings['SUM']['min'])}",
+    f"{settings['SUM']['max'] if settings['SUM']['max'] >= settings['L']['min'] else "!" + str(ettings['SUM']['max'])}"]
+    ]
+    print("")
+    print(tabulate(sum_table, headers=["Calculation:                              ", "Min: ", "Max: "]))
+    return 3
+
 def password_section(password):
     print("")
     print("[G] Generate Passowrd     [E] End Program     [\\] Cancel")
+    print("Legend:     [] Key     <> Variable")
     print("")
     print(f'* Generated password *\n {password}') #later loop thorugh array of passwords
 
-    return 4
+    return 5
 
 def count_newlines(string):
     return string.count("\n")
@@ -185,8 +199,9 @@ def build_screen(settings, password, input_message):
     building screen from top - header to the bottom  - input, filling the whole screen
     """
     printed_rows = 0 #increase by every extra print - row
-    printed_rows += header_section() # 1 row
+    printed_rows += header_section() # 1 line
     printed_rows += settings_section(settings) # 10 lines
+    printed_rows += sum_section(settings) # 2 lines
     printed_rows += password_section(password) # 4 lines
 
     printed_rows += count_newlines(input_message) # just count input_message lines
@@ -230,6 +245,7 @@ def input_valid(input_value):
 
 def screen_and_get_max(settings, password, input_value, input_message, action):
     while True:
+        settings, sum_lmin, sum_lmax = sum_min_max(settings)
         input_value = build_screen(settings, password, input_message)
 
         # Check input
@@ -261,6 +277,7 @@ def screen_and_get_max(settings, password, input_value, input_message, action):
 
 def screen_and_get_min(settings, password, input_value, input_message, action):
     while True:
+        settings, sum_lmin, sum_lmax = sum_min_max(settings)
         input_value = build_screen(settings, password, input_message)
 
         # Check input
@@ -334,7 +351,8 @@ def screen_and_get_action(settings):
     input_value = ""
 
     while True:
-        input_value = build_screen(settings, password+"act", input_message)
+        settings, sum_lmin, sum_lmax = sum_min_max(settings)
+        input_value = build_screen(settings, password, input_message)
 
         # Check input
         if input_value == 'L':
@@ -372,7 +390,6 @@ def main():
     'S': {'name': 'Special characters', 'value': 'No', 'min': 5, 'max': 10},   # Use special characters
     'G': {'name': 'Generate Passowrd', 'value': ''}, # Generated Password?
     'SUM': {'name': 'SUM', 'min': 0, 'max': 0} # Sum
-    'SUM-Length': {'name': 'SUM - Length', 'min': 0, 'max': 0} # Sum
     }
 
     screen_and_get_action(settings)
