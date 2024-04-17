@@ -1,3 +1,4 @@
+################################################################################
 # Write your code to expect a terminal of 80 characters wide and 24 rows high
 
 import gspread 
@@ -15,25 +16,23 @@ GSPREAD_CLIENT = gspread.authorize(SCOPE_CREDS)
 SHEET = GSPREAD_CLIENT.open('password_gen')
 
 def default_input_message():
-    return 'Choose next action: '
-
-    """
-    On choosing action U f.e.: 
-    Ask for value: Y / N , error & ask again, escape. 
-    If Yes, ask for Min, error & ask again, escape. 
-    And ask for Max, error & ask again, escape.
-    """
+    message = "Choose next action: "
+    return message
 
 """
 checks if xsel is installed for clypbosrd op
 """
+
+import os # for get_terminal_size()
+
 import subprocess
 import platform
 def is_xsel_installed():
     if platform.system() != 'Linux':
         return False  # xsel is only available on Linux
     try:
-        subprocess.run(["xsel", "--version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+        subprocess.run(["xsel", "--version"], 
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
         return True
     except (subprocess.CalledProcessError, FileNotFoundError):
         return False
@@ -58,12 +57,10 @@ def sum_min_max(settings):
     settings['SUM']['max'] = sum_lmax
     return settings, sum_lmin, sum_lmax
 
+################################################################################
 import random
 import string
 def generate_password(settings):
-    #characters = string.ascii_letters + string.digits + string.punctuation
-    #password = ''.join(random.choice(characters) for _ in range(settings['L']))
-    #return password
 
     # Define character sets
     letters = string.ascii_letters
@@ -74,8 +71,15 @@ def generate_password(settings):
 
     settings, sum_lmin, sum_lmax = sum_min_max(settings)
 
-    length_min = sum_lmin if sum_lmin > settings['L']['min'] else settings['L']['min']
-    length_max = sum_lmax if sum_lmax > settings['L']['max'] else settings['L']['max']
+    if sum_lmin > settings['L']['min']:
+        length_min = sum_lmin
+    else:
+        length_min = settings['L']['min']
+
+    if  sum_lmax > settings['L']['max']:
+        length_max = sum_lmax
+    else:
+        length_min = settings['L']['max']
 
     """
     Add this to input message
@@ -86,9 +90,12 @@ def generate_password(settings):
     else:
         print("Sum of Mininals is bigger then Maximal Password Length. Change Settings to satisfy this condition.")
     """
-
+################################################################################
     char_type = ('U', 'O', 'N', 'S')
-    password_components = {'U': letters.upper(), 'O': letters.lower(), 'N': digits, 'S': punctuation}
+    password_components = {
+        'U': letters.upper(), 'O': letters.lower(), 
+        'N': digits, 'S': punctuation
+        }
     
     passwords = ""
 
@@ -97,7 +104,8 @@ def generate_password(settings):
         # Generate password components
         for char in char_type:
             if settings[char]["value"] == 'Yes':
-                password += ''.join(random.choices(password_components[char], k=settings[char]['min']))
+                password += ''.join(random.choices(password_components[char],
+                 k=settings[char]['min']))
 
         #password = ''.join(password_list)
 
@@ -107,11 +115,20 @@ def generate_password(settings):
         remaining_length = password_length - sum_lmin
 
         # Get character types with 'Yes' values in settings
-        yes_char_types = [char for char in char_type if settings[char]["value"] == 'Yes']
+        yes_char_types = [
+            char for char in char_type 
+            if settings[char]["value"] == 'Yes'
+            ]
 
-        # Fill the remaining length with random characters from lowercase and number sets 
+        # Fill the remaining length with random characters
         if remaining_length > 0:
-            remaining_characters = ''.join(random.choices(''.join(password_components[char] for char in yes_char_types), k=remaining_length))
+            remaining_characters = ''.join(
+                random.choices(
+                    ''.join(password_components[char] 
+                    for char in yes_char_types), 
+                    k=remaining_length
+                )
+            )
             password += remaining_characters
 
         # Shuffle the password to ensure randomness
@@ -127,12 +144,16 @@ def tabulate(table, headers):
     all_data = [headers] + table
 
     # Find the maximum width of each column
-    column_widths = [max(len(str(row[i])) for row in all_data) for i in range(len(headers))]
+    column_widths = [
+        max(len(str(row[i])) for row in all_data) for i in range(len(headers))
+        ]
 
     # Format each row with extra spaces to achieve aligned look
     formatted_table = []
     for row in all_data:
-        formatted_row = [str(cell).ljust(column_widths[i]) for i, cell in enumerate(row)]
+        formatted_row = [
+            str(cell).ljust(column_widths[i]) for i, cell in enumerate(row)
+            ]
         formatted_table.append(formatted_row)
 
     table = ""
@@ -142,35 +163,49 @@ def tabulate(table, headers):
     
     return table[:-1]
 
-def header_section():
-    
-    #for terminal row size smaller then 24 or 26, atempt to mainitain screen integrity
-    rows, columns = get_terminal_size()
-    if rows <= 26:
-        return 0
-    else:
-        print("*** Password Generator ***")
-        return 1
+def get_terminal_size():
+    rows, columns = os.popen('stty size', 'r').read().split()
+    return int(rows), int(columns)
 
+def count_newlines(string):
+    return string.count("\n") + 1
+
+def print_and_count(string):
+    print(string)
+    return count_newlines(string)
+
+def header_section():  
+    #for terminal row smaller then 26 to mainitain screen integrity
+    #rows, columns = get_terminal_size()
+    #if rows <= 26:
+    #    return 0
+    #else:
+    print("*** Password Generator ***")
+    return 1
+
+################################################################################
 def settings_section(settings):
     """
     Display front page containing: Settings info, Action options
     """
-    #use when working with google sheet is required
-    #settings = SHEET.worksheet('settings')
-    #data = settings.get_all_values()
-    #print(data)
+    rows_count = 0
 
-    #for terminal row size smaller then 24 or 26, atempt to mainitain screen integrity
-    rows, columns = get_terminal_size()
-    if rows > 26:
-        print("")
+    #for terminal row smaller then 26 to mainitain screen integrity
+    #rows, columns = get_terminal_size()
+    #if rows > 26:
+    print("")
+    rows_count += 1
+
     print("* Settings *")
 
     # Format the settings as a list of lists for tabulate
     settings_table = [
-    ["[L]", settings['L']['name'], "", f"<{settings['L']['min']}>", f"<{settings['L']['max']}>"],
+    ["[L]", settings['L']['name'], "-", 
+    f"<{settings['L']['min']}>", f"<{settings['L']['max']}>"],
        
+    ["[B]", settings['B']['name'], f"<{settings['B']['value']}>",
+    "-", "-"],
+
     ["[U]", settings['U']['name'], f"<{settings['U']['value']}>", 
     f"<{settings['U']['min'] if settings['U']['value'] != 'No' else '-'}>", 
     f"<{settings['U']['max'] if settings['U']['value'] != 'No' else '-'}>"],  
@@ -185,84 +220,77 @@ def settings_section(settings):
     
     ["[S]", settings['S']['name'], f"<{settings['S']['value']}>", 
     f"<{settings['S']['min'] if settings['S']['value'] != 'No' else '-'}>", 
-    f"<{settings['S']['max'] if settings['S']['value'] != 'No' else '-'}>"],
-    
-    ["[B]", settings['B']['name'], f"<{settings['B']['value']}>",
-    "", 
-    ""]
+    f"<{settings['S']['max'] if settings['S']['value'] != 'No' else '-'}>"]
     ]
 
-    #for terminal row size smaller then 24 or 26, atempt to mainitain screen integrity
-    rows, columns = get_terminal_size()
-    if rows > 24:
-        settings_table.insert(0, ["---"] * 5)
-        settings_table.insert(2, ["---"] * 5)
+    #for terminal row smaller then 24 to mainitain screen integrity
+    #rows, columns = get_terminal_size()
+    #if rows > 24:
+    settings_table.insert(0, ["---"] * 5)
+    settings_table.insert(3, ["---"] * 5)
 
-    print(tabulate(settings_table, headers=["Action key:", "Action:", "Yes/No:", "Min: ", "Max: "]))
-    return 12
+    print(tabulate(settings_table, headers = [
+        "Action key:", "Action:", "Yes/No:", "Min: ", "Max: "
+        ]))
+    rows_count += count_newlines(tabulate(settings_table, headers = [
+        "Action key:", "Action:", "Yes/No:", "Min: ", "Max: "
+        ])) + 1 # +1 for headers
+    return rows_count
 
 def sum_section(settings):
-
-    """
-    sum_table = [
-    [settings['SUM']['name'],
-    f"{settings['SUM']['min'] if settings['SUM']['min'] <= settings['L']['max'] else "!" + str(settings['SUM']['min'])}",
-    f"{settings['SUM']['max'] if settings['SUM']['max'] >= settings['L']['min'] else "!" + str(settings['SUM']['max'])}"]
-    ]
-    print("")
-    print(tabulate(sum_table, headers=["Calculation:                              ", "Min: ", "Max: "]))
-    """
     print("")
     print(f"SUM of Minimum and Maximum (<Yes> only):   ",
-     f" Min. {settings['SUM']['min'] if settings['SUM']['min'] <= settings['L']['max'] else "!" + str(settings['SUM']['min'])}",
-      f" Max. {settings['SUM']['max'] if settings['SUM']['max'] >= settings['L']['min'] else "!" + str(settings['SUM']['max'])}")
-
+    f" Min. {settings['SUM']['min'] if settings['SUM']['min'] <= settings['L']['max'] else "!" + str(settings['SUM']['min'])}",
+    f" Max. {settings['SUM']['max'] if settings['SUM']['max'] >= settings['L']['min'] else "!" + str(settings['SUM']['max'])}")
     return 2
 
-def password_section(password):
+def actions_section():
     print("")
-    print("[G] Generate Password   " + ("[C] Copy to clipboard   [R] Clear clipboard" if is_xsel_installed() or is_pyperclip_installed() else ""))
+    print("[G] Generate Password   " + (
+        "[C] Copy to clipboard   [R] Clear clipboard" 
+        if is_xsel_installed() or is_pyperclip_installed() 
+        else ""
+        ))
     print("[E] End Program   [Enter] Skip   [\\] Cancel")
     print("")
     print("Legend:   [] Key   <> Variable")
+    return 5
+
+def password_section(password):
     print("")
-    print(f'* Generated password *\n {password}') #later loop thorugh array of passwords
+    print("* Generated password *")
+    print(password) 
+    return count_newlines(password) + 2
 
-    return 7
-
-def count_newlines(string):
-    return string.count("\n")
-
-def print_and_count(string):
-    print(string)
-    return count_newlines(string)
-
-import os
-def get_terminal_size():
-    rows, columns = os.popen('stty size', 'r').read().split()
-    return int(rows), int(columns)
-
-def blank_lines_section(printed_rows):
+def blank_lines_section(rows_count):
     #get terminal size
-    rows, columns = get_terminal_size() #columns - I might not need them, except for "print string width" check...
+    rows, columns = get_terminal_size() 
+    #columns - I might not need them, except for "print string width" check...
     #blank lines to fill the the screen
-    for i in (range(rows - printed_rows)):
+    for i in (range(rows - rows_count)):
         print("")
 
 def build_screen(settings, password, input_message):
     """
-    building screen from top - header to the bottom  - input, filling the whole screen
+    building screen from top - header to the bottom  
+        - input, filling the whole screen
     """
-    printed_rows = 0 #increase by every extra print - row
-    printed_rows += header_section() # 1 line
-    printed_rows += settings_section(settings) # 10 lines
-    printed_rows += sum_section(settings) # 2 lines
-    printed_rows += password_section(password) # 4 lines
+    rows_count = 0 #increase by every extra print - row
+    rows_count += header_section() # 1 line
+    rows_count += actions_section() # 5 lines
+    if count_newlines(input_message) == 1:
+        rows_count += settings_section(settings) # 10 lines
+    else:
+        pass # action_section(settings)
+    rows_count += sum_section(settings) # 2 lines
+    rows_count += password_section(password) # 2+ lines
+    rows_count += count_newlines(input_message) # 1 / 4 lines
 
-    printed_rows += count_newlines(input_message) # just count input_message lines
 
     #blank lines to fill the the screen
-    blank_lines_section(printed_rows) 
+    blank_lines_section(rows_count) 
+    
+
 
     #input message
     input_value = input(input_message).upper()
@@ -306,7 +334,7 @@ def screen_and_get_max(settings, password, input_value, input_message, action):
         # Check input
         try:
             input_value = int(input_value)
-            if (input_value >= 1 or input_value <= 1024) and (input_value >= settings[action]['min']):
+            if (input_value >= 1 and input_value <= 1024) and (input_value >= settings[action]['min']):
                 settings[action]['max'] = input_value
                 input_message = action_section(settings[action])
                 input_message += f"\nYou set Maximum value to {settings[action]['max']}."
@@ -341,7 +369,7 @@ def screen_and_get_min(settings, password, input_value, input_message, action):
         # Check input
         try:
             input_value = int(input_value)
-            if input_value >= 1 or input_value <= 1024:
+            if input_value >= 1 and input_value <= 1024:
                 settings[action]['min'] = input_value
                 input_message = action_section(settings[action])
                 input_message += f"\nYou set Minimum count to {settings[action]['min']}."
@@ -511,7 +539,8 @@ def main():
     'N': {'name': 'Numbers', 'value': 'Yes', 'min': 1, 'max': 2},   # Use numbers
     'S': {'name': 'Special characters', 'value': 'No', 'min': 5, 'max': 10},   # Use special characters
     'B': {'name': 'Batch count', 'value': 1},   # Generated password count
-    'SUM': {'name': 'SUM', 'min': 0, 'max': 0} # Sum
+    'SUM': {'name': 'SUM', 'min': 0, 'max': 0}, # Sum
+    'SHOW':{'settings': True, 'action': False} # Show or not parts of page
     }
 
     screen_and_get_action(settings)
@@ -527,44 +556,8 @@ if __name__ == "__main__":
 """
 sudo apt-get install xsel
 
-
 sudo apt remove xsel
 sudo yum remove xsel
 pip uninstall xsel
 
-"""
-
-
-
-
-
-
-"""
-#*** Password Generator ***
-
-#* Settings *
-Action key: | Action:            | Yes/No: | Min:  | Max: 
-#---         | ---                | ---     | ---   | ---  
-[L]         | Password Length    |         | <4>   | <8>  
-#---         | ---                | ---     | ---   | ---  
-[U]         | Uppercase          | <No>    | <->   | <->  
-[O]         | Lowercase          | <Yes>   | <4>   | <5>  
-[N]         | Numbers            | <Yes>   | <1>   | <2>  
-[S]         | Special characters | <No>    | <->   | <->  
-
-SUM of Minimum and Maximum - (<Yes> only):   Min. 5  Max. 7
-
-[G] Generate Passowrd   [C] Copy to clipboard   [R] Clear clipboard
-[E] End Program   [Enter] Skip   [\] Cancel
-
-Legend:   [] Key   <> Variable
-
-* Generated password *
-sfg46s5g4gfs
-
-* Uppercase *
-Action status: Uppercase <No>,
-
-Do you want to use Uppercase?
-Please enter 'Y' for Yes or 'N' for No <No>:  
 """
