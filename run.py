@@ -24,9 +24,27 @@ def default_input_message():
     And ask for Max, error & ask again, escape.
     """
 
-def flip_yes_no(value):
-    value = 'No' if value == 'Yes' else 'Yes'
-    return value
+"""
+checks if xsel is installed for clypbosrd op
+"""
+import subprocess
+import platform
+def is_xsel_installed():
+    if platform.system() != 'Linux':
+        return False  # xsel is only available on Linux
+    try:
+        subprocess.run(["xsel", "--version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+        return True
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        return False
+
+def is_pyperclip_installed():
+    try:
+        import pyperclip
+        return True
+    except ImportError:
+        return False
+
 
 def sum_min_max(settings):
     char_type = ('U', 'O', 'N', 'S')
@@ -71,32 +89,38 @@ def generate_password(settings):
 
     char_type = ('U', 'O', 'N', 'S')
     password_components = {'U': letters.upper(), 'O': letters.lower(), 'N': digits, 'S': punctuation}
-    # Generate password components
-    for char in char_type:
-        if settings[char]["value"] == 'Yes':
-            password += ''.join(random.choices(password_components[char], k=settings[char]['min']))
+    
+    passwords = ""
 
-    #password = ''.join(password_list)
+    for i in range(settings['B']['value']):
+        password = ""
+        # Generate password components
+        for char in char_type:
+            if settings[char]["value"] == 'Yes':
+                password += ''.join(random.choices(password_components[char], k=settings[char]['min']))
 
-    password_length = random.randint(length_min, length_max)
+        #password = ''.join(password_list)
 
-    # Calculate the remaining length for the password
-    remaining_length = password_length - sum_lmin
+        password_length = random.randint(length_min, length_max)
 
-    # Get character types with 'Yes' values in settings
-    yes_char_types = [char for char in char_type if settings[char]["value"] == 'Yes']
+        # Calculate the remaining length for the password
+        remaining_length = password_length - sum_lmin
 
-    # Fill the remaining length with random characters from lowercase and number sets 
-    if remaining_length > 0:
-        remaining_characters = ''.join(random.choices(''.join(password_components[char] for char in yes_char_types), k=remaining_length))
-        password += remaining_characters
+        # Get character types with 'Yes' values in settings
+        yes_char_types = [char for char in char_type if settings[char]["value"] == 'Yes']
 
-    # Shuffle the password to ensure randomness
-    password_list = list(password)
-    random.shuffle(password_list)
-    password = ''.join(password_list)
+        # Fill the remaining length with random characters from lowercase and number sets 
+        if remaining_length > 0:
+            remaining_characters = ''.join(random.choices(''.join(password_components[char] for char in yes_char_types), k=remaining_length))
+            password += remaining_characters
 
-    return password
+        # Shuffle the password to ensure randomness
+        password_list = list(password)
+        random.shuffle(password_list)
+        password = ''.join(password_list)
+        passwords += password + "\n"
+
+    return passwords
 
 def tabulate(table, headers):
     # Combine the headers with the table data
@@ -119,8 +143,14 @@ def tabulate(table, headers):
     return table[:-1]
 
 def header_section():
-    print("*** Password Generator ***")
-    return 1
+    
+    #for terminal row size smaller then 24 or 26, atempt to mainitain screen integrity
+    rows, columns = get_terminal_size()
+    if rows <= 26:
+        return 0
+    else:
+        print("*** Password Generator ***")
+        return 1
 
 def settings_section(settings):
     """
@@ -131,16 +161,16 @@ def settings_section(settings):
     #data = settings.get_all_values()
     #print(data)
 
-    print("")
+    #for terminal row size smaller then 24 or 26, atempt to mainitain screen integrity
+    rows, columns = get_terminal_size()
+    if rows > 26:
+        print("")
     print("* Settings *")
 
     # Format the settings as a list of lists for tabulate
     settings_table = [
-    ["---","---","---","---","---"],
     ["[L]", settings['L']['name'], "", f"<{settings['L']['min']}>", f"<{settings['L']['max']}>"],
-    
-    ["---","---","---","---","---"],
-    
+       
     ["[U]", settings['U']['name'], f"<{settings['U']['value']}>", 
     f"<{settings['U']['min'] if settings['U']['value'] != 'No' else '-'}>", 
     f"<{settings['U']['max'] if settings['U']['value'] != 'No' else '-'}>"],  
@@ -155,13 +185,25 @@ def settings_section(settings):
     
     ["[S]", settings['S']['name'], f"<{settings['S']['value']}>", 
     f"<{settings['S']['min'] if settings['S']['value'] != 'No' else '-'}>", 
-    f"<{settings['S']['max'] if settings['S']['value'] != 'No' else '-'}>"]
+    f"<{settings['S']['max'] if settings['S']['value'] != 'No' else '-'}>"],
+    
+    ["[B]", settings['B']['name'], f"<{settings['B']['value']}>",
+    "", 
+    ""]
     ]
+
+    #for terminal row size smaller then 24 or 26, atempt to mainitain screen integrity
+    rows, columns = get_terminal_size()
+    if rows > 24:
+        settings_table.insert(0, ["---"] * 5)
+        settings_table.insert(2, ["---"] * 5)
+
     print(tabulate(settings_table, headers=["Action key:", "Action:", "Yes/No:", "Min: ", "Max: "]))
     return 12
 
 def sum_section(settings):
 
+    """
     sum_table = [
     [settings['SUM']['name'],
     f"{settings['SUM']['min'] if settings['SUM']['min'] <= settings['L']['max'] else "!" + str(settings['SUM']['min'])}",
@@ -169,16 +211,24 @@ def sum_section(settings):
     ]
     print("")
     print(tabulate(sum_table, headers=["Calculation:                              ", "Min: ", "Max: "]))
-    return 3
+    """
+    print("")
+    print(f"SUM of Minimum and Maximum (<Yes> only):   ",
+     f" Min. {settings['SUM']['min'] if settings['SUM']['min'] <= settings['L']['max'] else "!" + str(settings['SUM']['min'])}",
+      f" Max. {settings['SUM']['max'] if settings['SUM']['max'] >= settings['L']['min'] else "!" + str(settings['SUM']['max'])}")
+
+    return 2
 
 def password_section(password):
     print("")
-    print("[G] Generate Passowrd   [E] End Program   [Enter] Skip   [\\] Cancel")
+    print("[G] Generate Password   " + ("[C] Copy to clipboard   [R] Clear clipboard" if is_xsel_installed() or is_pyperclip_installed() else ""))
+    print("[E] End Program   [Enter] Skip   [\\] Cancel")
+    print("")
     print("Legend:   [] Key   <> Variable")
     print("")
     print(f'* Generated password *\n {password}') #later loop thorugh array of passwords
 
-    return 5
+    return 7
 
 def count_newlines(string):
     return string.count("\n")
@@ -194,7 +244,7 @@ def get_terminal_size():
 
 def blank_lines_section(printed_rows):
     #get terminal size
-    rows, columns = get_terminal_size() #columns - I might not need them, except for string width check...
+    rows, columns = get_terminal_size() #columns - I might not need them, except for "print string width" check...
     #blank lines to fill the the screen
     for i in (range(rows - printed_rows)):
         print("")
@@ -271,7 +321,7 @@ def screen_and_get_max(settings, password, input_value, input_message, action):
             elif int(settings[action]['min']) > int(settings[action]['max']):
                 input_message = action_section(settings[action])
                 input_message += f"\nMinimum cannot be more then Maximum."
-                input_message += f"\nPlease enter Maximum count<{settings[action]['max']}>: "
+                input_message += f"\nPlease enter Maximum count: <{settings[action]['max']}> "
             elif input_value == '':
                 input_message = action_section(settings[action])
                 input_message += f"\nYou confirmed previus Maximum value {settings[action]['max']}."
@@ -295,13 +345,13 @@ def screen_and_get_min(settings, password, input_value, input_message, action):
                 settings[action]['min'] = input_value
                 input_message = action_section(settings[action])
                 input_message += f"\nYou set Minimum count to {settings[action]['min']}."
-                input_message += f"\nPlease enter Maximum count <{settings[action]['max']}>: "
+                input_message += f"\nPlease enter Maximum count: <{settings[action]['max']}> "
                 settings, input_message = screen_and_get_max(settings, password, input_value, input_message, action)
                 break
             else:
                 input_message = action_section(settings[action])
                 input_message += f"\nInvalid value <{input_value}>!"
-                input_message += f"\nPlease enter Minimum count between 1 and 1024 <{settings[action]['min']}>: "  
+                input_message += f"\nPlease enter Minimum count (1-1024): <{settings[action]['min']}> "  
         except ValueError:
             if input_value == '\\':
                 input_message = action_section(settings[action])
@@ -311,13 +361,13 @@ def screen_and_get_min(settings, password, input_value, input_message, action):
             elif input_value == '':
                 input_message = action_section(settings[action])
                 input_message += f"\nYou confirmed previous Minimum count {settings[action]['min']}."
-                input_message += f"\nPlease enter Maximum count <{settings[action]['max']}>: "
+                input_message += f"\nPlease enter Maximum count: <{settings[action]['max']}> "
                 settings, input_message = screen_and_get_max(settings, password, input_value, input_message, action)
                 break
             else:
                 input_message = action_section(settings[action])
                 input_message += f"\nInvalid value!"
-                input_message += f"\nPlease enter Minimum count between 1 and 1024 <{settings[action]['min']}>: "
+                input_message += f"\nPlease enter Minimum count (1-1024): <{settings[action]['min']}> "
     return settings, input_message
 
 def screen_and_get_yes_no(settings, password, input_value, input_message, action):
@@ -330,7 +380,7 @@ def screen_and_get_yes_no(settings, password, input_value, input_message, action
             settings[action]['value'] = 'Yes'
             input_message = action_section(settings[action])
             input_message += f"\nYou selected 'Yes'."
-            input_message += f"\nPlease enter Minimum count <{settings[action]['min']}>: "
+            input_message += f"\nPlease enter Minimum count: <{settings[action]['min']}> "
             settings, input_message = screen_and_get_min(settings, password, input_value, input_message, action)
             break
         elif input_value == 'N':
@@ -348,7 +398,7 @@ def screen_and_get_yes_no(settings, password, input_value, input_message, action
             if settings[action]['value'] == 'Yes':
                 input_message = action_section(settings[action])
                 input_message += f"\nYou confirmed previus value 'Yes'."
-                input_message += f"\nPlease enter Minimum count <{settings[action]['min']}>: "
+                input_message += f"\nPlease enter Minimum count: <{settings[action]['min']}> "
                 settings, input_message = screen_and_get_min(settings, password, input_value, input_message, action)
                 break 
             elif settings[action]['value'] == 'No':
@@ -359,11 +409,44 @@ def screen_and_get_yes_no(settings, password, input_value, input_message, action
         else:
             input_message = action_section(settings[action])
             input_message += f"\nInvalid key!"
-            input_message += f"\nPlease enter 'Y' for Yes or 'N' for No <{settings[action]['value']}>: "
+            input_message += f"\nPlease enter 'Y' for Yes or 'N' for No: <{settings[action]['value']}> "
             #if input_value in ('Y', 'N'):
             #    input_value = action
     return settings, input_message
 
+def screen_and_get_value(settings, password, input_value, input_message, action):
+    while True:
+        #build screen
+        input_value = build_screen(settings, password, input_message)
+        
+        # Check input
+        try:
+            input_value = int(input_value)
+            if (input_value >= 1 or input_value <= 100):
+                settings[action]['value'] = input_value
+                input_message = action_section(settings[action])
+                input_message += f"\nYou set generated password count to {settings[action]['value']}."
+                input_message += f"\n{default_input_message()}"
+                break
+        except ValueError:
+            if input_value == '\\':
+                input_message = action_section(settings[action])
+                input_message += f"\nYou cancelled {settings[action]['name']} action."
+                input_message += f"\n{default_input_message()}"
+                break
+            elif input_value == '':
+                input_message = action_section(settings[action])
+                input_message += f"\nYou confirmed generated password count {settings[action]['value']}."
+                input_message += f"\n{default_input_message()}"
+                break
+            else:
+                input_message = action_section(settings[action])
+                input_message += f"\nInvalid value!"
+                input_message += f"\nPlease enter generated password count between 1 and 100: <{settings[action]['value']}> "
+    return settings, input_message
+
+#import pyperclip
+#from clipboard import copy_to_clipboard, clear_clipboard
 def screen_and_get_action(settings):
     """
     Keeps program looping till the End of Program
@@ -380,17 +463,22 @@ def screen_and_get_action(settings):
         if input_value == 'L':
             input_message = action_section(settings[input_value])  
             input_message += f"\n"
-            input_message += f"\nPlease enter Minimum count <{settings[input_value]['min']}>: "
+            input_message += f"\nPlease enter Minimum count: <{settings[input_value]['min']}> "
             settings, input_message = screen_and_get_min(settings, password, input_value, input_message, input_value)
         elif input_value in ('U', 'O', 'N', 'S'):
             input_message = action_section(settings[input_value])  
             input_message += f"\nDo you want to use {settings[input_value]['name']}?"
-            input_message += f"\nPlease enter 'Y' for Yes or 'N' for No <{settings[input_value]['value']}>:  "
+            input_message += f"\nPlease enter 'Y' for Yes or 'N' for No: <{settings[input_value]['value']}> "
             settings, input_message = screen_and_get_yes_no(settings, password, input_value, input_message, input_value)
         elif input_value == 'G':
-            input_message = f"\nPassword Has been Generated."
+            input_message = f"\nPassword has been generated."
             input_message += f"\n{default_input_message()}"
             password = generate_password(settings)
+        elif input_value == 'B':
+            input_message = action_section(settings[input_value])  
+            input_message += f"\n"
+            input_message += f"\nHow many passwords you want to generate (1-100)? <{settings[input_value]['value']}> "
+            settings, input_message = screen_and_get_value(settings, password, input_value, input_message, input_value)
         elif input_value == '':
              pass
         elif input_value == 'E':
@@ -399,6 +487,18 @@ def screen_and_get_action(settings):
             input_message = f"Invalid key! Plese Enter the key"
             input_message += f"\neather uppercase 'L', 'U', 'O', 'N', 'S', 'G', 'E'"
             input_message += f"\nor lowercase 'l', 'u', 'o', 'n', 's', 'g', 'e':"
+
+        """
+        elif input_value == 'C':
+            input_message = f"\nPassword has been copied to the clipboard."
+            input_message += f"\n{default_input_message()}"
+            pyperclip.copy(password)
+            #copy_to_clipboard(password)
+        elif input_value == 'R':
+            input_message = f"\nPassword has been cleared from the clipboard."
+            input_message += f"\n{default_input_message()}"
+            clear_clipboard()
+        """
 
 def end():
         print("\n*** \nEnding Password Generator. \nMemory has been cleared. \nStay safe and Goodbye.")
@@ -410,7 +510,7 @@ def main():
     'O': {'name': 'Lowercase', 'value': 'Yes', 'min': 4, 'max': 5},  # Use lowercase
     'N': {'name': 'Numbers', 'value': 'Yes', 'min': 1, 'max': 2},   # Use numbers
     'S': {'name': 'Special characters', 'value': 'No', 'min': 5, 'max': 10},   # Use special characters
-    'G': {'name': 'Generate Passowrd', 'value': ''}, # Generated Password?
+    'B': {'name': 'Batch count', 'value': 1},   # Generated password count
     'SUM': {'name': 'SUM', 'min': 0, 'max': 0} # Sum
     }
 
@@ -422,3 +522,49 @@ Start Password Generator Program
 """
 if __name__ == "__main__":
     main()
+
+
+"""
+sudo apt-get install xsel
+
+
+sudo apt remove xsel
+sudo yum remove xsel
+pip uninstall xsel
+
+"""
+
+
+
+
+
+
+"""
+#*** Password Generator ***
+
+#* Settings *
+Action key: | Action:            | Yes/No: | Min:  | Max: 
+#---         | ---                | ---     | ---   | ---  
+[L]         | Password Length    |         | <4>   | <8>  
+#---         | ---                | ---     | ---   | ---  
+[U]         | Uppercase          | <No>    | <->   | <->  
+[O]         | Lowercase          | <Yes>   | <4>   | <5>  
+[N]         | Numbers            | <Yes>   | <1>   | <2>  
+[S]         | Special characters | <No>    | <->   | <->  
+
+SUM of Minimum and Maximum - (<Yes> only):   Min. 5  Max. 7
+
+[G] Generate Passowrd   [C] Copy to clipboard   [R] Clear clipboard
+[E] End Program   [Enter] Skip   [\] Cancel
+
+Legend:   [] Key   <> Variable
+
+* Generated password *
+sfg46s5g4gfs
+
+* Uppercase *
+Action status: Uppercase <No>,
+
+Do you want to use Uppercase?
+Please enter 'Y' for Yes or 'N' for No <No>:  
+"""
