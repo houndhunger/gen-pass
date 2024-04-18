@@ -1,8 +1,8 @@
-################################################################################
+
 # Write your code to expect a terminal of 80 characters wide and 24 rows high
 
 def default_inp_message():
-    message = "Choose next action: "
+    message = "Choose next operation: "
     return message
 
 """
@@ -43,7 +43,7 @@ def sum_min_max(settings):
     settings['SUM']['max'] = sum_lmax
     return settings, sum_lmin, sum_lmax
 
-################################################################################
+
 import random
 import string
 def generate_password(settings):
@@ -76,7 +76,7 @@ def generate_password(settings):
     else:
         print("Sum of Mininals is bigger then Maximal Password Length. Change Settings to satisfy this condition.")
     """
-################################################################################
+
     char_type = ('U', 'O', 'N', 'S')
     password_components = {
         'U': letters.upper(), 'O': letters.lower(), 
@@ -138,7 +138,9 @@ def tabulate(table, headers):
     formatted_table = []
     for row in all_data:
         formatted_row = [
-            str(cell).ljust(column_widths[i]) for i, cell in enumerate(row)
+            str(cell).ljust(column_widths[i], "-") 
+            if cell == "---" 
+            else str(cell).ljust(column_widths[i]) for i, cell in enumerate(row)
             ]
         formatted_table.append(formatted_row)
 
@@ -173,19 +175,24 @@ def title_section(rows):
         #####display['title'] = False
     return 2
 
-def legend_and_actions_section(active_action, rows):
-    
+def help_screen():
+    with open('help.txt', 'r') as file:
+        help_content = file.read()
+    return help_content
+
+def legend_and_op_section(active_operation, rows):  
     content = ""
     if rows >= 25:
-        content = "* Legend *\n[] Key   <> Variable   [-] <-> Not available\n" 
-        content += "\n* Actions *\n"
+        content = "* Legend *\n[] Key   <> Variable"+\
+        "   [-] <-> Not available   ! wrong variables \n" 
+        content += "\n* Operations *\n"
     else:
         content = "Legend: [] Key   <> Variable   [-] <-> Not available\n"  
-        content += "Actions: " 
+        content += "Operations: " 
 
-    if active_action == 'HOME':
+    if active_operation == 'HOME':
         content += "[G] Generate Password   "
-        content += "[E] End Program"
+        content += "[E] End Program   [H] Help"
     else:
         content += "[Enter] Skip   [\] Cancel"
     
@@ -197,11 +204,11 @@ def legend_and_actions_section(active_action, rows):
     print(content)
     return count_returns(content)
 
-################################################################################
+
 def settings_section(settings, rows):
     """
     Display Settings section table containing 
-     relevant action keys and variable values.
+     relevant operation keys and variable values.
     """
 
     content = ""
@@ -211,12 +218,12 @@ def settings_section(settings, rows):
     content += "\n* Settings *"
    
    
-    aa = settings['ACTIVE-ACTION']
+    aa = settings['ACTIVE-OP']
     keys = ['L', 'B', 'U', 'O', 'N', 'S']
     for i in range(len(keys)):
-        if aa != keys[i] and settings['ACTIVE-ACTION'] != 'HOME':
+        if aa != keys[i] and settings['ACTIVE-OP'] != 'HOME':
             keys[i] = '-'
-        elif aa != keys[i] and settings['ACTIVE-ACTION'] != 'HOME':
+        elif aa != keys[i] and settings['ACTIVE-OP'] != 'HOME':
             keys[i] = 'ACTIVE'
 
 
@@ -246,7 +253,7 @@ def settings_section(settings, rows):
         settings_table.insert(3, ["---"] * 5)
 
     content += f"\n{tabulate(settings_table, headers = [
-        'Action key:', 'Action:', 'Yes/No:', 'Min:  ', 'Max:  '
+        'Operation key:', 'Operation:', 'Yes/No:', 'Min:   ', 'Max:   '
         ])}"
     
     print(content)
@@ -269,15 +276,18 @@ def sum_section(settings, rows):
     content = ""
     if rows >= 23:
         content += "\n"
-    content += "SUM of Minimum and Maximum (<Yes> only):  "
+    content += "SUM of Minimum and Maximum (<Yes> only):      "
     
     status_min, status_max = check_sum_min_max(settings)
-    
+    min_mark = ""
+    max_mark = ""
     if not(status_min):
-        sum_min = "!" + sum_min
+        min_mark = "!"
     if not(status_max):
-        sum_max = "!" + sum_max   
-    content += f"  Min. {settings['SUM']['min']}, Max. {settings['SUM']['max']}"
+        max_mark = "!"    
+    content += f" Min. {\
+    min_mark}{settings['SUM']['min']}    Max. {\
+    max_mark}{settings['SUM']['max']}"
 
     print(content)
     return count_returns(content)
@@ -303,13 +313,18 @@ def build_screen(settings, password, inp_message):
     It responds to screen rows count to fill
     whole screen correctly  
     """
-    rows, columns = get_terminal_size()
-    rows_count = 0 #increase by every extra print - row
-    rows_count += title_section(rows) # 2 lins
-    rows_count += legend_and_actions_section(settings['ACTIVE-ACTION'], rows) # 4 lines
-    rows_count += settings_section(settings, rows) # 10 lines
-    rows_count += sum_section(settings, rows) # 2 lines
-    rows_count += password_section(password) # 2+ lines
+    if settings['ACTIVE-OP'] == 'H':
+        help_content = help_screen()
+        print(help_content)
+        rows_count = count_returns(help_content)
+    else:
+        rows, columns = get_terminal_size()
+        rows_count = 0 #increase by every extra print - row
+        rows_count += title_section(rows) # 2 lins
+        rows_count += legend_and_op_section(settings['ACTIVE-OP'], rows) #4
+        rows_count += settings_section(settings, rows) # 10 lines
+        rows_count += sum_section(settings, rows) # 2 lines
+        rows_count += password_section(password) # 2+ lines       
     rows_count += count_returns(inp_message) # 1 / 4 lines
 
     #blank lines to fill the the screen
@@ -319,36 +334,37 @@ def build_screen(settings, password, inp_message):
     try:
         inp_value = input(inp_message).upper()
     except:
-        # I need to call here Invalid input and message
+        ##### I need to call here Invalid input and message
         inp_value = 'X'
     return inp_value
 
-def action_status(action):
-    status = f"Action status:"
-    # Check if 'value' key exists in the action dictionary
-    if 'value' in action:
-        status += f" {action['name']} <{action['value']}>,"  
+##### operation_status() not needed - not used
+def operation_status(operation):
+    status = f"Operation status:"
+    # Check if 'value' key exists in the operation dictionary
+    if 'value' in operation:
+        status += f" {operation['name']} <{operation['value']}>,"  
         # Check if 'value' is 'No' and return status if it is
-        if action['value'] == 'No':
+        if operation['value'] == 'No':
             return status
     # Add 'Min' and 'Max' to the status
-    status += f" Min: <{action.get('min', '')}>, Max: <{action.get('max', '')}>."
+    status += f" Min: <{operation.get('min', '')}>, Max: <{operation.get('max', '')}>."
     return status
-
-def action_section(action):
-    #Action Name - Header
-    section = f"* {action['name']} *\n"
-    #Action status
-    section += f"{action_status(action)}\n"
+    
+##### operation_section() not needed - not used
+def operation_section(operation):
+    #Operation Name - Header
+    section = f"* {operation['name']} *\n"
+    #Operation status
+    section += f"{operation_status(operation)}\n"
     return section    
 
+##### input_valid() not needed - not used
 def input_valid(inp_value):
-################################################################################
     """
     Checks if user input is valid.
     Returns true if it is, if not it will return message
     """
-
     if inp_value in ('L', 'U', 'O', 'N', 'S', 'G', 'E'):
         return True, ""
     else: ##### is this used? because input varries
@@ -357,192 +373,206 @@ def input_valid(inp_value):
         "or 'l' 'u', 'o', 'n', 's', 'g', 'e'.")
         return False, message
 
-def screen_and_get_max(settings, password, inp_value, inp_message, action):
+import screens
+
+def screen_and_get_any(settings, password, inp_value, inp_message, operation):
+    settings, sum_lmin, sum_lmax = sum_min_max(settings)
+    inp_value = build_screen(settings, password, inp_message)
+    inp_message = f"\n{default_inp_message()}"
+    settings['ACTIVE-OP'] = 'HOME'
+    return settings, inp_message
+
+def screen_and_get_max(settings, password, inp_value, inp_message, operation):
     while True:
         settings, sum_lmin, sum_lmax = sum_min_max(settings)
         inp_value = build_screen(settings, password, inp_message)
-
+        inp_message = ""
         # Check input
         try:
             inp_value = int(inp_value)
-            if (inp_value >= 1 and inp_value <= 1024) and \
-            (inp_value >= settings[action]['min']):
-                settings[action]['max'] = inp_value
-                settings['ACTIVE-ACTION'] = 'HOME'
-                ##### inp_message = action_section(settings[action])
+            if (inp_value >= 1 and inp_value <= 4096) and \
+            (inp_value >= settings[operation]['min']):
+                settings[operation]['max'] = inp_value
+                settings['ACTIVE-OP'] = 'HOME'
+                ##### inp_message = operation_section(settings[operation])
                 inp_message += \
-                f"\nYou set Maximum value to {settings[action]['max']}."
+                f"\nYou set Maximum value to {settings[operation]['max']}."
                 inp_message += f"\n{default_inp_message()}"
                 break
         except ValueError:
             if inp_value == '\\' and \
-            int(settings[action]['min']) <= int(settings[action]['max']):
-                settings['ACTIVE-ACTION'] = 'HOME'
-                ##### inp_message = action_section(settings[action])
-                inp_message += f"\nYou cancelled \
-                {settings[action]['name']} action."
+            int(settings[operation]['min']) <= int(settings[operation]['max']):
+                settings['ACTIVE-OP'] = 'HOME'
+                ##### inp_message = operation_section(settings[operation])
+                inp_message += f"\nYou cancelled {\
+                settings[operation]['name']} operation."
                 inp_message += f"\n{default_inp_message()}"
                 break
-            elif int(settings[action]['min']) > int(settings[action]['max']):
-                ##### inp_message = action_section(settings[action])
+            elif int(settings[operation]['min']) > int(settings[operation]['max']):
+                ##### inp_message = operation_section(settings[operation])
                 inp_message += f"\nMinimum cannot be more then Maximum."
-                inp_message += f"\nPlease enter Maximum count: < \
-                {settings[action]['max']}> "
+                inp_message += f"\nPlease enter Maximum count: < {\
+                settings[operation]['max']}> "
             elif inp_value == '':
-                settings['ACTIVE-ACTION'] = 'HOME'
-                ##### inp_message = action_section(settings[action])
-                inp_message += f"\nYou confirmed previus Maximum value \
-                {settings[action]['max']}."
+                settings['ACTIVE-OP'] = 'HOME'
+                ##### inp_message = operation_section(settings[operation])
+                inp_message += f"\nYou confirmed previus Maximum value {\
+                settings[operation]['max']}."
                 inp_message += f"\n{default_inp_message()}"
                 break
             else:
-                ##### inp_message = action_section(settings[action])
+                ##### inp_message = operation_section(settings[operation])
                 inp_message += f"\nInvalid value!"
-                inp_message += f"\nPlease enter Maximum count between \
-                1 and 1024 and bigger then Minimum: "
+                inp_message += \
+                f"\nPlease enter Maximum count between " + \
+                "1 and 4096 and bigger then Minimum: "
     return settings, inp_message
-################################################################################
-def screen_and_get_min(settings, password, inp_value, inp_message, action):
+
+def screen_and_get_min(settings, password, inp_value, inp_message, operation):
     while True:
         settings, sum_lmin, sum_lmax = sum_min_max(settings)
         inp_value = build_screen(settings, password, inp_message)
-
+        inp_message = ""
         # Check input
         try:
             inp_value = int(inp_value)
-            if inp_value >= 1 and inp_value <= 1024:
-                settings[action]['min'] = inp_value
-                ##### inp_message = action_section(settings[action])
-                inp_message += f"\nYou set Minimum count to \
-                {settings[action]['min']}."
-                inp_message += f"\nPlease enter Maximum count: <\
-                {settings[action]['max']}> "
+            if inp_value >= 1 and inp_value <= 4096:
+                settings[operation]['min'] = inp_value
+                ##### inp_message = operation_section(settings[operation])
+                inp_message += f"\nYou set Minimum count to {\
+                settings[operation]['min']}."
+                inp_message += f"\nPlease enter Maximum count: <{\
+                settings[operation]['max']}> "
                 settings, inp_message = screen_and_get_max(
-                    settings, password, inp_value, inp_message, action
+                    settings, password, inp_value, inp_message, operation
                     )
                 break
             else:
-                ##### inp_message = action_section(settings[action])
+                ##### inp_message = operation_section(settings[operation])
                 inp_message += f"\nInvalid value <{inp_value}>!"
-                inp_message += f"\nPlease enter Minimum count (1-1024): <\
-                {settings[action]['min']}> "  
+                inp_message += f"\nPlease enter Minimum count (1-4096): <{\
+                settings[operation]['min']}> "  
         except ValueError:
             if inp_value == '\\':
-                settings['ACTIVE-ACTION'] = 'HOME'
-                ##### inp_message = action_section(settings[action])
-                inp_message += f"\nYou cancelled \
-                {settings[action]['name']} action."
+                settings['ACTIVE-OP'] = 'HOME'
+                ##### inp_message = operation_section(settings[operation])
+                inp_message += f"\nYou cancelled {\
+                settings[operation]['name']} operation."
                 inp_message += f"\n{default_inp_message()}"
                 break
             elif inp_value == '':
-                ##### inp_message = action_section(settings[action])
-                inp_message += f"\nYou confirmed previous Minimum count \
-                {settings[action]['min']}."
-                inp_message += f"\nPlease enter Maximum count: <\
-                {settings[action]['max']}> "
+                ##### inp_message = operation_section(settings[operation])
+                inp_message += f"\nYou confirmed previous Minimum count {\
+                settings[operation]['min']}."
+                inp_message += f"\nPlease enter Maximum count: <{\
+                settings[operation]['max']}> "
                 settings, inp_message = screen_and_get_max(
-                    settings, password, inp_value, inp_message, action
+                    settings, password, inp_value, inp_message, operation
                     )
                 break
             else:
-                ##### inp_message = action_section(settings[action])
+                ##### inp_message = operation_section(settings[operation])
                 inp_message += f"\nInvalid value!"
-                inp_message += f"\nPlease enter Minimum count (1-1024): <\
-                {settings[action]['min']}> "
+                inp_message += f"\nPlease enter Minimum count (1-4096): <{\
+                settings[operation]['min']}> "
     return settings, inp_message
 
-################################################################################
-def screen_and_get_yes_no(settings, password, inp_value, inp_message, action):
+
+def screen_and_get_yes_no(settings, password, inp_value, inp_message, operation):
     while True:
         #build screen
         inp_value = build_screen(settings, password, inp_message)
-
+        inp_message = ""
         #check inupt
         if inp_value == 'Y':
-            settings[action]['value'] = 'Yes'
-            ##### inp_message = action_section(settings[action])
+            settings[operation]['value'] = 'Yes'
+            ##### inp_message = operation_section(settings[operation])
             inp_message += f"\nYou selected 'Yes'."
-            inp_message += f"\nPlease enter Minimum count: <\
-            {settings[action]['min']}> "
+            inp_message += f"\nPlease enter Minimum count: <{\
+            settings[operation]['min']}> "
             settings, inp_message = screen_and_get_min(
-                settings, password, inp_value, inp_message, action
+                settings, password, inp_value, inp_message, operation
                 )
             break
         elif inp_value == 'N':
-            settings[action]['value'] = 'No'
-            settings['ACTIVE-ACTION'] = 'HOME'
-            ###### inp_message = action_section(settings[action])
+            settings[operation]['value'] = 'No'
+            settings['ACTIVE-OP'] = 'HOME'
+            ###### inp_message = operation_section(settings[operation])
             inp_message += f"\nYou selected 'No'."
             inp_message += f"\n{default_inp_message()}"
             break
         elif inp_value == '\\':
-            settings['ACTIVE-ACTION'] = 'HOME'
-            ##### inp_message = action_section(settings[action])
-            inp_message += f"\nYou cancelled {settings[action]['name']} action."
+            settings['ACTIVE-OP'] = 'HOME'
+            ##### inp_message = operation_section(settings[operation])
+            inp_message += f"\nYou cancelled {settings[operation]['name']} operation."
             inp_message += f"\n{default_inp_message()}"
             break
         elif inp_value == '':
-            if settings[action]['value'] == 'Yes':
-                ##### inp_message = action_section(settings[action])
+            if settings[operation]['value'] == 'Yes':
+                ##### inp_message = operation_section(settings[operation])
                 inp_message += f"\nYou confirmed previus value 'Yes'."
-                inp_message += f"\nPlease enter Minimum count: <\
-                {settings[action]['min']}> "
+                inp_message += f"\nPlease enter Minimum count: <{\
+                settings[operation]['min']}> "
                 settings, inp_message = screen_and_get_min(
-                    settings, password, inp_value, inp_message, action
+                    settings, password, inp_value, inp_message, operation
                     )
                 break 
-            elif settings[action]['value'] == 'No':
-                settings['ACTIVE-ACTION'] = 'HOME'
-                ###### inp_message = action_section(settings[action])
+            elif settings[operation]['value'] == 'No':
+                settings['ACTIVE-OP'] = 'HOME'
+                ###### inp_message = operation_section(settings[operation])
                 inp_message += f"\nYou confirmed previus value 'No'."
                 inp_message += f"\n{default_inp_message()}"
                 break
         else:
-            ##### inp_message = action_section(settings[action])
+            ##### inp_message = operation_section(settings[operation])
             inp_message += f"\nInvalid key!"
-            inp_message += f"\nPlease enter 'Y' for Yes or 'N' for No: <\
-            {settings[action]['value']}> "
+            inp_message += f"\nPlease enter 'Y' for Yes or 'N' for No: <{\
+            settings[operation]['value']}> "
             #if inp_value in ('Y', 'N'):
-            #    inp_value = action
+            #    inp_value = operation
     return settings, inp_message
 
-################################################################################
-def screen_and_get_value(settings, password, inp_value, inp_message, action):
+
+def screen_and_get_value(settings, password, inp_value, inp_message, operation):
     while True:
         #build screen
         inp_value = build_screen(settings, password, inp_message)
-        
+        inp_message = ""
         # Check input
         try:
             inp_value = int(inp_value)
-            if (inp_value >= 1 or inp_value <= 100):
-                settings[action]['value'] = inp_value
-                ##### inp_message = action_section(settings[action])
-                inp_message += f"\nYou set generated password count to \
-                {settings[action]['value']}."
+            if (inp_value >= 1 and inp_value <= 100):
+                settings[operation]['value'] = inp_value
+                settings['ACTIVE-OP'] = 'HOME'
+                ##### inp_message = operation_section(settings[operation])
+                inp_message += f"\nYou set generated password count to {\
+                settings[operation]['value']}."
                 inp_message += f"\n{default_inp_message()}"
                 break
         except ValueError:
             if inp_value == '\\':
-                ##### inp_message = action_section(settings[action])
-                inp_message += f"\nYou cancelled \
-                {settings[action]['name']} action."
+                ##### inp_message = operation_section(settings[operation])
+                settings['ACTIVE-OP'] = 'HOME'
+                inp_message += f"\nYou cancelled {\
+                settings[operation]['name']} operation."
                 inp_message += f"\n{default_inp_message()}"
                 break
             elif inp_value == '':
-                ##### inp_message = action_section(settings[action])
-                inp_message += f"\nYou confirmed generated password count \
-                {settings[action]['value']}."
+                ##### inp_message = operation_section(settings[operation])
+                settings['ACTIVE-OP'] = 'HOME'
+                inp_message += f"\nYou confirmed generated password count {\
+                settings[operation]['value']}."
                 inp_message += f"\n{default_inp_message()}"
                 break
             else:
-                ##### inp_message = action_section(settings[action])
+                ##### inp_message = operation_section(settings[operation])
                 inp_message += f"\nInvalid value!"
-                inp_message += f"\nPlease enter generated password count \
-                between 1 and 100: <{settings[action]['value']}> "
+                inp_message += \
+                f"\nPlease enter generated password count between 1 and 100: <{\
+                settings[operation]['value']}> "
     return settings, inp_message
 
-def screen_and_get_action(settings):
+def screen_and_get_operation(settings):
     """
     Keeps program looping till the End of Program
     """
@@ -553,42 +583,54 @@ def screen_and_get_action(settings):
     while True:
         settings, sum_lmin, sum_lmax = sum_min_max(settings)
         inp_value = build_screen(settings, password, inp_message)
-
+        status_min, status_max = check_sum_min_max(settings)
+        print(status_min, status_max)
         # Check input
         if inp_value == 'L':
-            settings['ACTIVE-ACTION'] = inp_value
-            inp_message = action_section(settings[inp_value])  
-            inp_message += f"\n"
-            inp_message += f"\nPlease enter Minimum count: <\
-            {settings[inp_value]['min']}> "
+            settings['ACTIVE-OP'] = inp_value
+            ##### inp_message = operation_section(settings[inp_value])          
+            inp_message = f"\n"
+            inp_message += f"\nPlease enter Minimum count: <{\
+            settings[inp_value]['min']}> "
             settings, inp_message = screen_and_get_min(
                 settings, password, inp_value, inp_message, inp_value
                 )
         elif inp_value in ('U', 'O', 'N', 'S'):
-            settings['ACTIVE-ACTION'] = inp_value
-            inp_message = action_section(settings[inp_value])  
-            inp_message += f"\nDo you want to use {settings[inp_value]['name']}?"
-            inp_message += f"\nPlease enter 'Y' for Yes or 'N' for No: <\
-            {settings[inp_value]['value']}> "
+            settings['ACTIVE-OP'] = inp_value
+            ##### inp_message = operation_section(settings[inp_value])          
+            inp_message = f"\nDo you want to use {settings[inp_value]['name']}?"
+            inp_message += f"\nPlease enter 'Y' for Yes or 'N' for No: <{\
+            settings[inp_value]['value']}> "
             settings, inp_message = screen_and_get_yes_no(
                 settings, password, inp_value, inp_message, inp_value
                 )
-        elif inp_value == 'G':
-            settings['ACTIVE-ACTION'] = inp_value
+        elif inp_value == 'G' and status_min and status_max:
             inp_message = f"\nPassword has been generated."
             inp_message += f"\n{default_inp_message()}"
             password = generate_password(settings)
+        elif inp_value == 'G' and not(status_min and status_max):
+            inp_message = \
+            f"\nIf the sum of min values exceed the max password length " + \
+            f"\nor the sum of max values fall short of the min password length, " + \
+            f"\nadjust the min and max variables to generate passwords."
+        elif inp_value == 'H':
+            settings['ACTIVE-OP'] = inp_value
+            inp_message = f"\nSubmit any key to return to the main screen: "
+            settings, inp_message = screen_and_get_any(
+                settings, password, inp_value, inp_message, inp_value
+                )
         elif inp_value == 'B':
-            settings['ACTIVE-ACTION'] = inp_value
-            inp_message = action_section(settings[inp_value])  
-            inp_message += f"\n"
-            inp_message += f"\nHow many passwords you want to generate \
-            (1-100)? <{settings[inp_value]['value']}> "
+            settings['ACTIVE-OP'] = inp_value
+            ##### inp_message = operation_section(settings[inp_value])          
+            inp_message = f"\n"
+            inp_message += \
+            f"\nHow many passwords you want to generate (1-100)? <{\
+            settings[inp_value]['value']}> "
             settings, inp_message = screen_and_get_value(
                 settings, password, inp_value, inp_message, inp_value
                 )
         elif inp_value == 'C':
-            settings['ACTIVE-ACTION'] = inp_value
+            settings['ACTIVE-OP'] = inp_value
             inp_message = f"\nPassword has been copied to the clipboard."
             inp_message += f"\n{default_inp_message()}"
             ##### I can't make it work
@@ -597,7 +639,7 @@ def screen_and_get_action(settings):
             except:
                 pass
         elif inp_value == 'R':
-            settings['ACTIVE-ACTION'] = inp_value
+            settings['ACTIVE-OP'] = inp_value
             inp_message = f"\nPassword has been cleared from the clipboard."
             inp_message += f"\n{default_inp_message()}"
             clear_clipboard()
@@ -609,16 +651,17 @@ def screen_and_get_action(settings):
             inp_message = f"Invalid key! Plese Enter the key"
             inp_message += f"\neather uppercase 'L', 'U', 'O', 'N', 'S', 'G', 'E'"
             inp_message += f"\nor lowercase 'l', 'u', 'o', 'n', 's', 'g', 'e':"
-################################################################################
-
-
 
 def end():
-        print("\n*** \nEnding Password Generator. "
-        "\nMemory has been cleared. \nStay safe and Goodbye.")
+        print(f"\n*** \nEnding Password Generator. " +\
+        f"\nMemory has been cleared. \nStay safe and Goodbye.")
 
-################################################################################
 def main():
+    """
+    Main function of the program which sets settings, 
+    starts main screen, where whole process goes
+    and ends program.
+    """
     settings = {
     # Password Length
     'L': {'name': 'Password Length', 'min': 4, 'max': 8},  
@@ -632,23 +675,13 @@ def main():
     'S': {'name': 'Special characters', 'value': 'No', 'min': 5, 'max': 10},
     # Generated password count  
     'B': {'name': 'Batch count', 'value': 1},
-    # Sum   
+    # Check sum for the min and max 
     'SUM': {'name': 'SUM', 'min': 0, 'max': 0},
-    # Show or not parts of page
-    'SHOW': {'settings': True, 'action': False},
-    'ACTIVE-ACTION': 'HOME'
+    # Holds active operation to display crelevant content i.e. key operations
+    'ACTIVE-OP': 'HOME'
     }
-
-    display = {
-    'title': False, 
-    'actions': False, 'compact_actions': True,
-    'primary_actions': True, 'secondary_actions': False,
-    'settings': False, 'compact_settings': True,
-    'sum': True,
-    'password': True,
-    }
-
-    screen_and_get_action(settings)
+    #main screen of the program
+    screen_and_get_operation(settings)
     end()
 
 """
@@ -656,13 +689,3 @@ Start Password Generator Program
 """
 if __name__ == "__main__":
     main()
-
-
-"""
-sudo apt-get install xsel
-
-sudo apt remove xsel
-sudo yum remove xsel
-pip uninstall xsel
-
-"""
