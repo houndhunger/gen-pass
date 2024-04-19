@@ -26,8 +26,8 @@ def end():
     """
     End of script
     """
-        print(f"\n*** \nEnding Password Generator. " +\
-        f"\nStay safe and Goodbye.")
+    print(f"\n*** \nEnding Password Generator. " +\
+    f"\nStay safe and Goodbye.")
 
 def main():
     """

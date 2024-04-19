@@ -31,7 +31,7 @@ def build_screen(settings, password, inp_message):
 
     #input message
     try:
-        inp_value = input(inp_message).upper()
+        inp_value = input(f"{inp_message}\n").upper()
     except:
         ##### I need to call here Invalid input and message
         inp_value = 'X'
