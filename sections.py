@@ -117,8 +117,9 @@ def sum_section(settings, rows):
 
 def password_section(password):
     print("")
-    print(f"* Generated password{'s' 
-    if calculations.count_returns(password) > 1 else ''} *")
+    password_plural = 's' if calculations.count_returns(password) > 1 else ''
+    gen_pass_title = f"* Generated password{password_plural} *"
+    print(gen_pass_title)
     print(password) 
     return calculations.count_returns(password) + 2
 
