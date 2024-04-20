@@ -34,11 +34,9 @@ def legend_and_op_section(active_operation, rows):
     else:
         content += "[Enter] Skip   [\] Cancel"
     
-    ##### Kee it until tutoring service is back and helps me with pyperclip   
-    """
-        if is_xsel_installed() or is_pyperclip_installed():
-            string += "[C] Copy to clipboard   [R] Clear clipboard   "    
-    """
+    if calculations.is_xsel_installed() or calculations.is_pyperclip_installed():
+            content += "   Clipboard: [C] Copy   [R] Clear"    
+
     print(content)
     return calculations.count_returns(content)
 

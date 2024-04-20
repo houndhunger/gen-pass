@@ -1,25 +1,3 @@
-import subprocess
-import platform
-def is_xsel_installed():
-    """
-    checks if xsel is installed for clypbosrd op
-    """
-    if platform.system() != 'Linux':
-        return False  # xsel is only available on Linux
-    try:
-        subprocess.run(["xsel", "--version"], 
-        stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
-        return True
-    except (subprocess.CalledProcessError, FileNotFoundError):
-        return False
-
-def is_pyperclip_installed():
-    try:
-        import pyperclip
-        return True
-    except ImportError:
-        return False
- 
 import calculations
 import validate
 def end():

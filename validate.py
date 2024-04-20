@@ -285,7 +285,6 @@ def screen_and_get_operation(settings):
             settings['ACTIVE-OP'] = inp_value
             inp_message = f"\nPassword has been copied to the clipboard."
             inp_message += f"\n{default_inp_message()}"
-            ##### I can't make it work
             try:
                 pyperclip.copy("password")
             except:
