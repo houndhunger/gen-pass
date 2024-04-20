@@ -21,12 +21,12 @@ def help_screen():
 def legend_and_op_section(active_operation, rows):  
     content = ""
     if rows >= 25:
-        content = "* Legend *\n[] Key   <> Variable"+\
-        "   [-] <-> Not available   ! wrong variables \n" 
-        content += "\n* Operations *\n"
+        content = f"* Legend *\n[] Key   <> Variable"
+        content += f"   [-] <-> Not available   ! wrong variables \n" 
+        content += f"\n* Operations *\n"
     else:
-        content = "Legend: [] Key   <> Variable   [-] <-> Not available\n"  
-        content += "Operations: " 
+        content = f"Legend: [] Key   <> Variable   [-] <-> Not available\n"  
+        content += f"Operations: " 
 
     if active_operation == 'HOME':
         content += "[G] Generate Password   "
@@ -109,9 +109,8 @@ def sum_section(settings, rows):
         min_mark = "!"
     if not(status_max):
         max_mark = "!"    
-    content += f" Min. {\
-    min_mark}{settings['SUM']['min']}    Max. {\
-    max_mark}{settings['SUM']['max']}"
+    content += f" Min. {min_mark}{settings['SUM']['min']}    "
+    content += f"Max. {max_mark}{settings['SUM']['max']}"
 
     print(content)
     return calculations.count_returns(content)
