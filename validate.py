@@ -237,7 +237,6 @@ def screen_and_get_operation(settings):
         settings, sum_lmin, sum_lmax = calculations.sum_min_max(settings)
         inp_value = build_screen(settings, password, inp_message)
         status_min, status_max = calculations.check_sum_min_max(settings)
-        print(status_min, status_max)
         # Check input
         if inp_value == 'L':
             settings['ACTIVE-OP'] = inp_value          
@@ -262,10 +261,10 @@ def screen_and_get_operation(settings):
             password = calculations.generate_password(settings)
         elif inp_value == 'G' and not(status_min and status_max):
             inp_message = \
-            f"\nIf the sum of min values exceed the max password length " + \
-            f"\nor the sum of max values fall short of the min password " + \
-            f"\nlength, adjust the min and max variables " + \
-            f"to generate passwords."
+            f"\n'!' The '!' symbol in the SUM indicates a problem. Ensure " + \
+            f"that the sum \nof the minimum values exceeds the maximum " + \
+            f"password length, and vice versa. \nAdjust the minimum and " + \
+            f"maximum variables to enable password generation."
         elif inp_value == 'H':
             settings['ACTIVE-OP'] = inp_value
             inp_message = f"\nSubmit any key to return to the main screen: "

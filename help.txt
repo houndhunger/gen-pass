@@ -1,12 +1,12 @@
 *** Password Generator ***
 
-This script generates passwords or keys ranging from 1 to 100 characters
+This script generates passwords or keys ranging from 1 to 100 passwords
 in length or 1 to 4096 characters. The script fills the entire terminal 
 screen.
 
 Note:
 When generating multiple passwords or longer keys, maintaining screen integrity
-is not possible on a terminal with minimal dimensions of 24 rows and 80 columns.
+is not possible on a terminal with dimensions less then 24 rows and 80 columns.
 The script optimally displays one password up to 80 characters in length
 in such terminals.
 
