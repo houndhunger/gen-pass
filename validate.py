@@ -71,10 +71,11 @@ def screen_and_get_max(settings, password, inp_value, inp_message, operation):
                 f"\nYou set Maximum value to {settings[operation]['max']}."
                 inp_message += f"\n{default_inp_message()}"
                 break
-            elif inp_value <= settings[operation]['min']:
-                inp_message += f"\nMaximum cannot be less then Minimum "
+            elif inp_value < settings[operation]['min']:
+                inp_message += f"\nMaximum '{inp_value}' "
+                inp_message += f"cannot be less then Minimum "
                 inp_message += f"\'{settings[operation]['min']}'."
-                inp_message += f"\nPlease enter Maximum count: < "
+                inp_message += f"\nPlease enter Maximum count: <"
                 inp_message += f"{settings[operation]['max']}> "
         except ValueError:
             if inp_value == '\\' and \
@@ -92,6 +93,26 @@ def screen_and_get_max(settings, password, inp_value, inp_message, operation):
                 inp_message += f"\nYou confirmed previus Maximum value "
                 inp_message += f"{settings[operation]['max']}."
                 inp_message += f"\n{default_inp_message()}"
+                break
+            elif inp_value == '' and \
+            int(settings[operation]['max']) < \
+            int(settings[operation]['min']):
+                inp_message += f"\nMaximum '{settings[operation]['max']}' "
+                inp_message += f"cannot be less then Minimum "
+                inp_message += f"\'{settings[operation]['min']}'."
+                inp_message += f"\nPlease enter Maximum count: <"
+                inp_message += f"{settings[operation]['max']}> "
+            elif inp_value == '\\' and \
+            int(settings[operation]['max']) < \
+            int(settings[operation]['min']):
+                inp_message += f"\nMaximum '{settings[operation]['max']}' "
+                inp_message += f"cannot be less then Minimum "
+                inp_message += f"\'{settings[operation]['min']}'."
+                inp_message += f"\nYou went step back. Please enter Minimum "
+                inp_message += f"count: <{settings[operation]['min']}> "
+                settings, inp_message = screen_and_get_min(
+                    settings, password, inp_value, inp_message, operation
+                    )
                 break
             else:
                 inp_message += f"\nInvalid value!"
