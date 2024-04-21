@@ -21,7 +21,7 @@ def legend_and_op_section(active_operation, rows):
     content = ""
     if rows >= 25:
         content = f"* Legend *\n[] Key   <> Variable"
-        content += f"   [-] <-> Not available   ! wrong variables \n" 
+        content += f"   [-] <-> Not available   ! wrong values \n" 
         content += f"\n* Operations *\n"
     else:
         content = f"Legend: [] Key   <> Variable   [-] <-> Not available\n"  
@@ -51,16 +51,27 @@ def settings_section(settings, rows):
         content += "\n* Settings *"
    
     keys = ['L', 'B', 'U', 'O', 'N', 'S']
+    
+    # show keys or not depending if ACTIVE-OP is primary operation
     for i in range(len(keys)):
         if settings['ACTIVE-OP'] != keys[i] and settings['ACTIVE-OP'] != 'HOME':
             keys[i] = '-'
         elif settings['ACTIVE-OP'] != keys[i] and settings['ACTIVE-OP'] != 'HOME':
             keys[i] = 'ACTIVE'
-
+    
+    # Mark wrong values with '!'
+    status_min, status_max = calculations.check_sum_min_max(settings)
+    min_m = ""
+    max_m = ""
+    if not(status_min):
+        min_m = "!"
+    if not(status_max):
+        max_m = "!"    
+    
     # Format the settings as a list of lists for tabulate
     settings_table = [
     [f"[{keys[0]}]", settings['L']['name'], "-", 
-    f"<{settings['L']['min']}>", f"<{settings['L']['max']}>"],
+    f"{max_m}<{settings['L']['min']}>", f"{min_m}<{settings['L']['max']}>"],
        
     [f"[{keys[1]}]", settings['B']['name'],"-", f"<{settings['B']['value']}>",
     f"<{settings['B']['value']}>"]
@@ -71,8 +82,8 @@ def settings_section(settings, rows):
     for key in short_keys:
         settings_table.append([f"[{keys[c]}]", settings[key]['name'],
         f"<{settings[key]['value']}>" if key != 'B' else f"<{settings[key]['value']}>",
-        f"<{settings[key]['min'] if settings[key]['value'] != 'No' else '-'}>",
-        f"<{settings[key]['max'] if settings[key]['value'] != 'No' else '-'}>"
+        f"{min_m}<{settings[key]['min'] if settings[key]['value'] != 'No' else '-'}>",
+        f"{max_m}<{settings[key]['max'] if settings[key]['value'] != 'No' else '-'}>"
         ]) 
         c += 1
 
@@ -99,14 +110,11 @@ def sum_section(settings, rows):
     content += "SUM of Minimum and Maximum (<Yes> only):      "
     
     status_min, status_max = calculations.check_sum_min_max(settings)
-    min_mark = ""
-    max_mark = ""
-    if not(status_min):
-        min_mark = "!"
-    if not(status_max):
-        max_mark = "!"    
-    content += f" Min. {min_mark}{settings['SUM']['min']}    "
-    content += f"Max. {max_mark}{settings['SUM']['max']}"
+    content += f" Min. {'!' if not status_min else ''}"
+    content += f"{settings['SUM']['min']}    "
+    content += f"Max. {'!' if not status_max else ''}"
+    content += f"{settings['SUM']['max']}"
+
 
     print(content)
     return calculations.count_returns(content)
