@@ -1,5 +1,25 @@
+"""
+This script generates passwords or keys ranging from 1 to 100 passwords
+in length or 1 to 4096 characters. The script fills the entire terminal 
+screen.
+
+Note:
+When generating multiple passwords or longer keys, maintaining screen integrity
+is not possible on a terminal with dimensions less then 24 rows and 80 columns.
+The script optimally displays on terminals with 28 lines and more with one 
+password up to 80 characters in length.
+
+The "SUM of Minimum and Maximum" provides a check to ensure that the sum of
+minimum values does not exceed the maximum password length, and vice versa.
+Adjust min and max settings to satisfy this condition. If the variables 
+do not meet this condition, an exclamation mark ('!') is displayed.
+
+Operations and keys are dynamically shown based on the active operation.
+"""
+
 import calculations
 import validate
+
 def end():
     """
     End of script
@@ -36,7 +56,7 @@ def main():
     end()
 
 """
-Start Password Generator Program
+Start Password Generator Script
 """
 if __name__ == "__main__":
     main()

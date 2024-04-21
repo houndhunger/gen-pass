@@ -2,18 +2,17 @@ import calculations
 
 def title_section(rows): 
     """
-    Displayed Title if terminal rows >= 26
+    It shows if terminal rows >= 26
     """ 
     if rows >= 26:
         print("*** Password Generator ***")
         print("")
-        #####display['title'] = True
     else:
         pass
-        #####display['title'] = False
     return 2
 
 def help_screen():
+
     with open('help.txt', 'r') as file:
         help_content = file.read()
     return help_content
@@ -42,33 +41,29 @@ def legend_and_op_section(active_operation, rows):
 
 def settings_section(settings, rows):
     """
-    Display Settings section table containing 
-     relevant operation keys and variable values.
+    It shows settings section table containing 
+    relevant operation keys and variable values.
     """
-
     content = ""
-    #for terminal row smaller then 26 to mainitain screen integrity
-    #rows, columns = get_terminal_size()
-    #if rows > 26:
-    content += "\n* Settings *"
+    
+    #for terminal row smaller then 21 and 22 to mainitain screen integrity
+    if rows > 26:
+        content += "\n* Settings *"
    
-   
-    aa = settings['ACTIVE-OP']
     keys = ['L', 'B', 'U', 'O', 'N', 'S']
     for i in range(len(keys)):
-        if aa != keys[i] and settings['ACTIVE-OP'] != 'HOME':
+        if settings['ACTIVE-OP'] != keys[i] and settings['ACTIVE-OP'] != 'HOME':
             keys[i] = '-'
-        elif aa != keys[i] and settings['ACTIVE-OP'] != 'HOME':
+        elif settings['ACTIVE-OP'] != keys[i] and settings['ACTIVE-OP'] != 'HOME':
             keys[i] = 'ACTIVE'
-
 
     # Format the settings as a list of lists for tabulate
     settings_table = [
     [f"[{keys[0]}]", settings['L']['name'], "-", 
     f"<{settings['L']['min']}>", f"<{settings['L']['max']}>"],
        
-    [f"[{keys[1]}]", settings['B']['name'], f"<{settings['B']['value']}>",
-    "-", "-"]
+    [f"[{keys[1]}]", settings['B']['name'],"-", f"<{settings['B']['value']}>",
+    f"<{settings['B']['value']}>"]
     ]
 
     short_keys = ('U', 'O', 'N', 'S')
@@ -94,8 +89,11 @@ def settings_section(settings, rows):
     return calculations.count_returns(content)
 
 def sum_section(settings, rows):
-    #for terminal row smaller then 23 to mainitain screen integrity
+    """
+    It shows SUM section - row 
+    """
     content = ""
+    #for terminal row smaller then 23 to mainitain screen integrity
     if rows >= 23:
         content += "\n"
     content += "SUM of Minimum and Maximum (<Yes> only):      "
@@ -114,6 +112,9 @@ def sum_section(settings, rows):
     return calculations.count_returns(content)
 
 def password_section(password):
+    """
+    It shows password section 
+    """
     print("")
     password_plural = 's' if calculations.count_returns(password) > 1 else ''
     gen_pass_title = f"* Generated password{password_plural} *"
@@ -122,9 +123,11 @@ def password_section(password):
     return calculations.count_returns(password) + 2
 
 def blank_lines_section(rows_count):
-    #get terminal size
+    """
+    It fills terminal with blank lines to achieve fullscreen effect
+    """
+    #get terminal size, columns are not used, but prepared for future use
     rows, columns = calculations.get_terminal_size() 
-    #columns - I might not need them, except for "print string width" check...
     #blank lines to fill the the screen
     for i in (range(rows - rows_count)):
         print("")

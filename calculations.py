@@ -2,7 +2,7 @@ import subprocess
 import platform
 def is_xsel_installed():
     """
-    checks if xsel is installed for clypbosrd op
+    checks if xsel is installed for clclipboard op
     """
     if platform.system() != 'Linux':
         return False  # xsel is only available on Linux
@@ -14,6 +14,9 @@ def is_xsel_installed():
         return False
 
 def is_pyperclip_installed():
+    """
+    checks if pyperclip is installed for clclipboard op
+    """
     try:
         import pyperclip
         return True
@@ -21,6 +24,9 @@ def is_pyperclip_installed():
         return False
 
 def check_sum_min_max(settings):
+    """
+    Checks 'SUM min' <= 'password length max' and vice versa
+    """
     if settings['SUM']['min'] <= settings['L']['max']:
         status_min = True
     else:
@@ -32,6 +38,9 @@ def check_sum_min_max(settings):
     return status_min, status_max
 
 def sum_min_max(settings):
+    """
+    SUMarize active Minimal and Maximal values
+    """
     char_type = ('U', 'O', 'N', 'S')
     sum_lmin = 0
     sum_lmax = 0
@@ -45,17 +54,29 @@ def sum_min_max(settings):
 
 import os
 def get_terminal_size():
+    """
+    Gets terminal size - rows, columns(future use)
+    """
     rows, columns = os.popen('stty size', 'r').read().split()
     return int(rows), int(columns)
 
 def count_returns(string):
+    """
+    Count returns
+    """
     return string.count("\n") + 1
 
 def print_and_count(string):
+    """
+    Printe and count returns
+    """
     print(string)
     return count_returns(string)
 
 def tabulate(table, headers):
+    """
+    Tabulate - draw a table from array data and returns it as a string
+    """
     # Combine the headers with the table data
     all_data = [headers] + table
 
@@ -84,7 +105,9 @@ def tabulate(table, headers):
 import random
 import string
 def generate_password(settings):
-
+    """
+    Generates password as string or passwords as multiline string
+    """
     # Define character sets
     letters = string.ascii_letters
     digits = string.digits
@@ -104,16 +127,6 @@ def generate_password(settings):
     else:
         length_max = settings['L']['max']
 
-    """
-    Add this to input message
-
-    if sum_lmin <= settings['L']['max'] and sum_lmax >= settings['L']['min'] and length_max - length_min >= 0:
-        print(f"length_min: {length_min}")
-        print(f"length_max: {length_max}")
-    else:
-        print("Sum of Mininals is bigger then Maximal Password Length. Change Settings to satisfy this condition.")
-    """
-
     char_type = ('U', 'O', 'N', 'S')
     password_components = {
         'U': letters.upper(), 'O': letters.lower(), 
@@ -129,8 +142,6 @@ def generate_password(settings):
             if settings[char]["value"] == 'Yes':
                 password += ''.join(random.choices(password_components[char],
                  k=settings[char]['min']))
-
-        #password = ''.join(password_list)
 
         password_length = random.randint(length_min, length_max)
 

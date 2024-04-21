@@ -7,8 +7,8 @@ screen.
 Note:
 When generating multiple passwords or longer keys, maintaining screen integrity
 is not possible on a terminal with dimensions less then 24 rows and 80 columns.
-The script optimally displays one password up to 80 characters in length
-in such terminals.
+The script optimally displays on terminals with 28 lines and more with one 
+password up to 80 characters in length.
 
 The "SUM of Minimum and Maximum" provides a check to ensure that the sum of
 minimum values does not exceed the maximum password length, and vice versa.

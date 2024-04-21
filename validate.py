@@ -2,15 +2,17 @@ import calculations
 import sections
 
 def default_inp_message():
-    message = "Choose next operation: "
+    """
+    Default Message
+    """
+    message = f"Choose next operation: \n"
     return message
 
 def build_screen(settings, password, inp_message):
     """
-    building screen from top - header to the bottom  
-        - input, filling the whole screen
-    It responds to screen rows count to fill
-    whole screen correctly  
+    Building screen from top - header to the bottom input, 
+    filling the whole screen
+    It responds to screen rows count to fill whole screen correctly  
     """
     if settings['ACTIVE-OP'] == 'H':
         help_content = sections.help_screen()
@@ -18,7 +20,7 @@ def build_screen(settings, password, inp_message):
         rows_c = calculations.count_returns(help_content)
     else:
         rows, columns = calculations.get_terminal_size()
-        rows_c = 0
+        rows_c = 0 # 1 extra line on input message outside rows_c *
         rows_c += sections.title_section(rows)
         rows_c += sections.legend_and_op_section(settings['ACTIVE-OP'], rows)
         rows_c += sections.settings_section(settings, rows)
@@ -31,15 +33,19 @@ def build_screen(settings, password, inp_message):
 
     #input message
     try:
-        inp_value = input(f"{inp_message}\n").upper()
-    except:
-        ##### I need to call here Invalid input and message
-        inp_value = 'X'
+        inp_value = input(inp_message).upper()
+    except ValueError as e:
+        print("Invalid input, something went wrong:", e)
+        # Exit the script
+        sys.exit(1)
     return inp_value
 
 def screen_and_get_any(
     settings, password, inp_value, inp_message, operation
     ):
+    """
+    Not so much validation as just returning to home screen
+    """
     settings, sum_lmin, sum_lmax = calculations.sum_min_max(settings)
     inp_value = build_screen(settings, password, inp_message)
     inp_message = f"\n{default_inp_message()}"
@@ -47,6 +53,9 @@ def screen_and_get_any(
     return settings, inp_message
 
 def screen_and_get_max(settings, password, inp_value, inp_message, operation):
+    """
+    Validation for Maximum value input
+    """
     while True:
         settings, sum_lmin, sum_lmax = calculations.sum_min_max(settings)
         inp_value = build_screen(settings, password, inp_message)
@@ -92,6 +101,9 @@ def screen_and_get_max(settings, password, inp_value, inp_message, operation):
     return settings, inp_message
 
 def screen_and_get_min(settings, password, inp_value, inp_message, operation):
+    """
+    Validation for Minimum value input
+    """
     while True:
         settings, sum_lmin, sum_lmax = calculations.sum_min_max(settings)
         inp_value = build_screen(settings, password, inp_message)
@@ -139,6 +151,9 @@ def screen_and_get_min(settings, password, inp_value, inp_message, operation):
 def screen_and_get_yes_no(
     settings, password, inp_value, inp_message, operation
     ):
+    """
+    Validation for Yes/No value input
+    """
     while True:
         #build screen
         inp_value = build_screen(settings, password, inp_message)
@@ -191,6 +206,9 @@ def screen_and_get_yes_no(
 def screen_and_get_value(
     settings, password, inp_value, inp_message, operation
     ):
+    """
+    Validation for password count input
+    """
     while True:
         #build screen
         inp_value = build_screen(settings, password, inp_message)
@@ -227,7 +245,7 @@ def screen_and_get_value(
 
 def screen_and_get_operation(settings):
     """
-    Keeps program looping till the End of Program
+    Primary operation, keeps program looping till the End of Program
     """
     password = ""
     inp_message = default_inp_message()
