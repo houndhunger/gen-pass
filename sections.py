@@ -44,7 +44,7 @@ def legend_and_op_section(active_operation, rows):
         calculations.is_xsel_installed() or
         calculations.is_pyperclip_installed()
     ):
-        content += "   Clipboard: [C] Copy   [R] Clear"
+        content += "\n[C] Copy password to clipboard   [R] Clear memory"
 
     print(content)
     return calculations.count_returns(content)

@@ -17,13 +17,14 @@ def build_screen(settings, password, inp_message):
     filling the whole screen
     It responds to screen rows count to fill whole screen correctly
     """
+    # screen shows eather home screen or help
     if settings['ACTIVE-OP'] == 'H':
         help_content = sections.help_screen()
         print(help_content)
         rows_c = calculations.count_returns(help_content)
     else:
         rows, columns = calculations.get_terminal_size()
-        rows_c = 0  # 1 extra line on input message outside rows_c *
+        rows_c = 0
         rows_c += sections.title_section(rows)
         rows_c += sections.legend_and_op_section(settings['ACTIVE-OP'], rows)
         rows_c += sections.settings_section(settings, rows)
