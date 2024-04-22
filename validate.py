@@ -3,8 +3,6 @@ import sections
 
 import sys  # for sudden exit on unidentified input
 
-import pyperclip
-
 
 def default_inp_message():
     """
@@ -301,7 +299,6 @@ def screen_and_get_operation(settings):
             inp_message = "\nPassword has been generated."
             inp_message += f"\n{default_inp_message()}"
             password = calculations.generate_password(settings)
-            calculations.test()
         elif inp_value == 'G' and not (status_min and status_max):
             inp_message = \
                 "\n'!' The '!' symbol in the SUM indicates a problem. " + \
@@ -325,6 +322,7 @@ def screen_and_get_operation(settings):
         elif inp_value == 'C':
             settings['ACTIVE-OP'] = inp_value
             inp_message = "\nPassword has been copied to the clipboard."
+            ##### pyperclip & clipboard
             try:
                 pyperclip.copy(password)
             except pyperclip.PyperclipException:

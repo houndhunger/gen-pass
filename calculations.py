@@ -1,5 +1,8 @@
+##### pyperclip & clipboard if I make it work
+import pyperclip
 import subprocess
 import platform
+
 
 # required for generate_password()
 import random
@@ -7,8 +10,6 @@ import string
 
 # required for get_terminal_size()
 import os
-
-import pyperclip
 
 
 def is_xsel_installed():

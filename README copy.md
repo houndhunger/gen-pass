@@ -54,11 +54,12 @@ The Screen consists of:
 - **Multi-language Support:** Add localization features.
 
 ## Solved Bugs
-- **Fullscreen display** Eventually I have achived proper 'full screen' behavior
+- **Fullscreen display** Eventually I have achived proper 'full screen' behavior. I had to develop how to measure and count terminal rows of individual sections
 - **Negative values** Minor bug, when I casued logical error. I used 'or' instead of 'and'.
+- **Line braking** I adhere to master principles when formatting my code to comply with linters like PEP8.
 
 ## Unsolved Bugs
-- **Clipboard** Coyping to clipboard doesn't work 
+- **Clipboard** Coyping to clipboard doesn't work
 
 ## Technologies Used
 - **Python**: Used for backend development and scripting.
@@ -95,7 +96,7 @@ Upon completing any modifications:
 4. Re-Deployng Branch on [heroku - Deploy](https://dashboard.heroku.com/apps/gen-pass/deploy/github), then browser page was opend (https://gen-pass-21b0071589ae.herokuapp.com/) to display terminal reflected the updates.
 
 ## Credits
-- Some online generators gave me an idea of basic password generator funcitons.
+- Some online generators gave me an idea of basic password generator funcitons: [Lastpass](https://www.lastpass.com/features/password-generator), [Avst](https://www.avast.com/en-gb/random-password-generator#pc), [1password](https://1password.com/password-generator/), [nexcess](https://www.nexcess.net/web-tools/secure-password-generator/), [bitwarden](https://bitwarden.com/password-generator/#password-generator)
 - ChatGPT - served me a lot as a 24/7 tutor service, quick code validation, code formarting and much more.
 - Big Thank You to my mentor Rohit Sharma who points me right direction every time.
 
