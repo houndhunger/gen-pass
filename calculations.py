@@ -8,6 +8,8 @@ import string
 # required for get_terminal_size()
 import os
 
+import pyperclip
+
 
 def is_xsel_installed():
     """
