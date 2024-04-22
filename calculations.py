@@ -1,5 +1,14 @@
 import subprocess
 import platform
+
+# required for generate_password()
+import random
+import string
+
+# required for get_terminal_size()
+import os
+
+
 def is_xsel_installed():
     """
     checks if xsel is installed for clclipboard op
@@ -7,21 +16,24 @@ def is_xsel_installed():
     if platform.system() != 'Linux':
         return False  # xsel is only available on Linux
     try:
-        subprocess.run(["xsel", "--version"], 
-        stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+        subprocess.run(
+                ["xsel", "--version"], stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE, check=True)
         return True
     except (subprocess.CalledProcessError, FileNotFoundError):
         return False
+
 
 def is_pyperclip_installed():
     """
     checks if pyperclip is installed for clclipboard op
     """
     try:
-        import pyperclip
+        # import pyperclip
         return True
     except ImportError:
         return False
+
 
 def check_sum_min_max(settings):
     """
@@ -37,6 +49,7 @@ def check_sum_min_max(settings):
         status_max = False
     return status_min, status_max
 
+
 def sum_min_max(settings):
     """
     SUMarize active Minimal and Maximal values
@@ -44,15 +57,15 @@ def sum_min_max(settings):
     char_type = ('U', 'O', 'N', 'S')
     sum_lmin = 0
     sum_lmax = 0
-    for char in char_type:
-        if settings[char]['value'] == 'Yes':
-            sum_lmin += settings[char]['min']
-            sum_lmax += settings[char]['max']
+    for ch in char_type:
+        if settings[ch]['value'] == 'Yes':
+            sum_lmin += settings[ch]['min']
+            sum_lmax += settings[ch]['max']
     settings['SUM']['min'] = sum_lmin
     settings['SUM']['max'] = sum_lmax
     return settings, sum_lmin, sum_lmax
 
-import os
+
 def get_terminal_size():
     """
     Gets terminal size - rows, columns(future use)
@@ -60,11 +73,13 @@ def get_terminal_size():
     rows, columns = os.popen('stty size', 'r').read().split()
     return int(rows), int(columns)
 
+
 def count_returns(string):
     """
     Count returns
     """
     return string.count("\n") + 1
+
 
 def print_and_count(string):
     """
@@ -72,6 +87,7 @@ def print_and_count(string):
     """
     print(string)
     return count_returns(string)
+
 
 def tabulate(table, headers):
     """
@@ -89,21 +105,21 @@ def tabulate(table, headers):
     formatted_table = []
     for row in all_data:
         formatted_row = [
-            str(cell).ljust(column_widths[i], "-") 
-            if cell == "---" 
-            else str(cell).ljust(column_widths[i]) for i, cell in enumerate(row)
+            str(cell).ljust(column_widths[i], "-")
+            if cell == "---"
+            else str(cell).ljust(column_widths[i])
+            for i, cell in enumerate(row)
             ]
         formatted_table.append(formatted_row)
 
     table = ""
     # Print the formatted table
     for row in formatted_table:
-        table +=" | ".join(row) + "\n"
-    
+        table += " | ".join(row) + "\n"
+
     return table[:-1]
 
-import random
-import string
+
 def generate_password(settings):
     """
     Generates password as string or passwords as multiline string
@@ -122,26 +138,27 @@ def generate_password(settings):
     else:
         length_min = settings['L']['min']
 
-    if  sum_lmax > settings['L']['max']:
+    if sum_lmax > settings['L']['max']:
         length_max = sum_lmax
     else:
         length_max = settings['L']['max']
 
     char_type = ('U', 'O', 'N', 'S')
-    password_components = {
-        'U': letters.upper(), 'O': letters.lower(), 
+    ps_comp = {
+        'U': letters.upper(), 'O': letters.lower(),
         'N': digits, 'S': punctuation
         }
-    
+
     passwords = ""
 
     for i in range(settings['B']['value']):
         password = ""
         # Generate password components
-        for char in char_type:
-            if settings[char]["value"] == 'Yes':
-                password += ''.join(random.choices(password_components[char],
-                 k=settings[char]['min']))
+        for ch in char_type:
+            if settings[ch]["value"] == 'Yes':
+                password += ''.join(random.choices(
+                    ps_comp[ch], k=settings[ch]['min']
+                    ))
 
         password_length = random.randint(length_min, length_max)
 
@@ -150,16 +167,15 @@ def generate_password(settings):
 
         # Get character types with 'Yes' values in settings
         yes_char_types = [
-            char for char in char_type 
-            if settings[char]["value"] == 'Yes'
+            ch for ch in char_type
+            if settings[ch]["value"] == 'Yes'
             ]
 
         # Fill the remaining length with random characters
         if remaining_length > 0:
             remaining_characters = ''.join(
                 random.choices(
-                    ''.join(password_components[char] 
-                    for char in yes_char_types), 
+                    ''.join(ps_comp[ch] for ch in yes_char_types),
                     k=remaining_length
                 )
             )
@@ -172,3 +188,13 @@ def generate_password(settings):
         passwords += password + "\n"
 
     return passwords
+
+def test():
+    try:
+        import pyperclip
+        print('I asume pyperclip is installed')
+    except ImportError:
+        print('Something wrong with pyperclip')
+
+    pyperclip.copy('The text to be copied to the clipboard.')
+    print(f"And Paste: {pyperclip.paste()}")
