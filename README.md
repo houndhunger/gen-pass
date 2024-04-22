@@ -60,6 +60,7 @@ The Screen consists of:
 
 ## Unsolved Bugs
 - **Clipboard** Coyping to clipboard doesn't work
+- **Fullscreen discrapancies** When nearing fullscreen limits, between 22-27 rows, top of page sometimes doesn't show best way, but all important information is visible.
 
 ## Technologies Used
 - **Python**: Used for backend development and scripting.

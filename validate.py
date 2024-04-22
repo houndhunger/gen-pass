@@ -1,7 +1,10 @@
+"""
+This module provides functions for validating inputs in the application.
+"""
+import sys  # for sudden exit on unidentified input
+
 import calculations
 import sections
-
-import sys  # for sudden exit on unidentified input
 
 
 def default_inp_message():
@@ -23,7 +26,7 @@ def build_screen(settings, password, inp_message):
         print(help_content)
         rows_c = calculations.count_returns(help_content)
     else:
-        rows, columns = calculations.get_terminal_size()
+        rows, _ = calculations.get_terminal_size()
         rows_c = 0
         rows_c += sections.title_section(rows)
         rows_c += sections.legend_and_op_section(settings['ACTIVE-OP'], rows)
@@ -45,12 +48,11 @@ def build_screen(settings, password, inp_message):
     return inp_value
 
 
-def screen_and_get_any(
-        settings, password, inp_value, inp_message, operation):
+def screen_and_get_any(settings, password, inp_message):
     """
     Not so much validation as just returning to home screen
     """
-    settings, sum_lmin, sum_lmax = calculations.sum_min_max(settings)
+    settings, _, _ = calculations.sum_min_max(settings)
     _ = build_screen(settings, password, inp_message)
     inp_message = f"\n{default_inp_message()}"
     settings['ACTIVE-OP'] = 'HOME'
@@ -62,21 +64,20 @@ def screen_and_get_max(settings, password, inp_value, inp_message, operation):
     Validation for Maximum value input
     """
     while True:
-        settings, sum_lmin, sum_lmax = calculations.sum_min_max(settings)
-        _ = build_screen(settings, password, inp_message)
+        settings, _, _ = calculations.sum_min_max(settings)
+        inp_value = build_screen(settings, password, inp_message)
         inp_message = ""
         # Check input
         try:
             inp_value = int(inp_value)
-            if inp_value >= 1 and inp_value <= 4096 and \
-                    inp_value >= settings[operation]['min']:
+            if 1 <= inp_value <= 4096 >= settings[operation]['min']:
                 settings[operation]['max'] = inp_value
                 settings['ACTIVE-OP'] = 'HOME'
                 inp_message += \
                     f"\nYou set Maximum value to {settings[operation]['max']}."
                 inp_message += f"\n{default_inp_message()}"
                 break
-            elif inp_value < settings[operation]['min']:
+            if inp_value < settings[operation]['min']:
                 inp_message += f"\nMaximum '{inp_value}' "
                 inp_message += "cannot be less then Minimum "
                 inp_message += f"\'{settings[operation]['min']}'."
@@ -91,7 +92,7 @@ def screen_and_get_max(settings, password, inp_value, inp_message, operation):
                 inp_message += f"{settings[operation]['name']} operation."
                 inp_message += f"\n{default_inp_message()}"
                 break
-            elif inp_value == '' and \
+            if inp_value == '' and \
                 int(settings[operation]['min']) <= \
                     int(settings[operation]['max']):
                 settings['ACTIVE-OP'] = 'HOME'
@@ -99,7 +100,7 @@ def screen_and_get_max(settings, password, inp_value, inp_message, operation):
                 inp_message += f"{settings[operation]['max']}."
                 inp_message += f"\n{default_inp_message()}"
                 break
-            elif inp_value == '' and \
+            if inp_value == '' and \
                 int(settings[operation]['max']) < \
                     int(settings[operation]['min']):
                 inp_message += f"\nMaximum '{settings[operation]['max']}' "
@@ -132,13 +133,13 @@ def screen_and_get_min(settings, password, inp_value, inp_message, operation):
     Validation for Minimum value input
     """
     while True:
-        settings, sum_lmin, sum_lmax = calculations.sum_min_max(settings)
+        settings, _, _ = calculations.sum_min_max(settings)
         inp_value = build_screen(settings, password, inp_message)
         inp_message = ""
         # Check input
         try:
             inp_value = int(inp_value)
-            if inp_value >= 1 and inp_value <= 4096:
+            if 1 <= inp_value <= 4096:
                 settings[operation]['min'] = inp_value
                 inp_message += "\nYou set Minimum count to "
                 inp_message += f"{settings[operation]['min']}."
@@ -146,12 +147,11 @@ def screen_and_get_min(settings, password, inp_value, inp_message, operation):
                 inp_message += f"{settings[operation]['max']}> "
                 settings, inp_message = screen_and_get_max(
                     settings, password, inp_value, inp_message, operation
-                    )
+                )
                 break
-            else:
-                inp_message += f"\nInvalid value <{inp_value}>!"
-                inp_message += "\nPlease enter Minimum count (1-4096): <"
-                inp_message += f"{settings[operation]['min']}> "
+            inp_message += f"\nInvalid value <{inp_value}>!"
+            inp_message += "\nPlease enter Minimum count (1-4096): <"
+            inp_message += f"{settings[operation]['min']}> "
         except ValueError:
             if inp_value == '\\':
                 settings['ACTIVE-OP'] = 'HOME'
@@ -159,19 +159,18 @@ def screen_and_get_min(settings, password, inp_value, inp_message, operation):
                 inp_message += f"{settings[operation]['name']} operation."
                 inp_message += f"\n{default_inp_message()}"
                 break
-            elif inp_value == '':
+            if inp_value == '':
                 inp_message += "\nYou confirmed previous Minimum count "
                 inp_message += f"{settings[operation]['min']}."
                 inp_message += "\nPlease enter Maximum count: <"
                 inp_message += f"{settings[operation]['max']}> "
                 settings, inp_message = screen_and_get_max(
                     settings, password, inp_value, inp_message, operation
-                    )
+                )
                 break
-            else:
-                inp_message += "\nInvalid value!"
-                inp_message += "\nPlease enter Minimum count (1-4096): <"
-                inp_message += f"{settings[operation]['min']}> "
+            inp_message += "\nInvalid value!"
+            inp_message += "\nPlease enter Minimum count (1-4096): <"
+            inp_message += f"{settings[operation]['min']}> "
     return settings, inp_message
 
 
@@ -192,21 +191,21 @@ def screen_and_get_yes_no(
             inp_message += f"{settings[operation]['min']}> "
             settings, inp_message = screen_and_get_min(
                 settings, password, inp_value, inp_message, operation
-                )
+            )
             break
-        elif inp_value == 'N':
+        if inp_value == 'N':
             settings[operation]['value'] = 'No'
             settings['ACTIVE-OP'] = 'HOME'
             inp_message += "\nYou selected 'No'."
             inp_message += f"\n{default_inp_message()}"
             break
-        elif inp_value == '\\':
+        if inp_value == '\\':
             settings['ACTIVE-OP'] = 'HOME'
             inp_message += "\nYou cancelled "
             inp_message += f"{settings[operation]['name']} operation."
             inp_message += f"\n{default_inp_message()}"
             break
-        elif inp_value == '':
+        if inp_value == '':
             if settings[operation]['value'] == 'Yes':
                 inp_message += "\nYou confirmed previus value 'Yes'."
                 inp_message += "\nPlease enter Minimum count: <"
@@ -215,7 +214,7 @@ def screen_and_get_yes_no(
                     settings, password, inp_value, inp_message, operation
                     )
                 break
-            elif settings[operation]['value'] == 'No':
+            if settings[operation]['value'] == 'No':
                 settings['ACTIVE-OP'] = 'HOME'
                 inp_message += "\nYou confirmed previus value 'No'."
                 inp_message += f"\n{default_inp_message()}"
@@ -239,7 +238,7 @@ def screen_and_get_value(
         # Check input
         try:
             inp_value = int(inp_value)
-            if (inp_value >= 1 and inp_value <= 100):
+            if 1 <= inp_value <= 100:
                 settings[operation]['value'] = inp_value
                 settings['ACTIVE-OP'] = 'HOME'
                 inp_message += "\nYou set generated password count to "
@@ -253,17 +252,16 @@ def screen_and_get_value(
                 inp_message += f"{settings[operation]['name']} operation."
                 inp_message += f"\n{default_inp_message()}"
                 break
-            elif inp_value == '':
+            if inp_value == '':
                 settings['ACTIVE-OP'] = 'HOME'
                 inp_message += "\nYou confirmed generated password count "
                 inp_message += f"{settings[operation]['value']}."
                 inp_message += f"\n{default_inp_message()}"
                 break
-            else:
-                inp_message += "\nInvalid value!"
-                inp_message += "\nPlease enter generated password count "
-                inp_message += "between 1 and 100: <"
-                inp_message += f"{settings[operation]['value']}> "
+            inp_message += "\nInvalid value!"
+            inp_message += "\nPlease enter generated password count "
+            inp_message += "between 1 and 100: <"
+            inp_message += f"{settings[operation]['value']}> "
     return settings, inp_message
 
 
@@ -276,7 +274,7 @@ def screen_and_get_operation(settings):
     inp_value = ""
 
     while True:
-        settings, sum_lmin, sum_lmax = calculations.sum_min_max(settings)
+        settings, _, _ = calculations.sum_min_max(settings)
         inp_value = build_screen(settings, password, inp_message)
         status_min, status_max = calculations.check_sum_min_max(settings)
         # Check input
@@ -310,8 +308,7 @@ def screen_and_get_operation(settings):
             settings['ACTIVE-OP'] = inp_value
             inp_message = "\nSubmit any key to return to the main screen: "
             settings, inp_message = screen_and_get_any(
-                settings, password, inp_value, inp_message, inp_value
-                )
+                settings, password, inp_message)
         elif inp_value == 'B':
             settings['ACTIVE-OP'] = inp_value
             inp_message += \
@@ -320,20 +317,6 @@ def screen_and_get_operation(settings):
             settings, inp_message = screen_and_get_value(
                 settings, password, inp_value, inp_message, inp_value
                 )
-        elif inp_value == 'C':
-            settings['ACTIVE-OP'] = inp_value
-            inp_message = "\nPassword has been copied to the clipboard."
-            ##### pyperclip & clipboard
-            try:
-                pyperclip.copy(password)
-            except pyperclip.PyperclipException:
-                inp_message += " Clipboard function is not supported."
-            inp_message += f"\n{default_inp_message()}"
-        elif inp_value == 'R':
-            settings['ACTIVE-OP'] = inp_value
-            inp_message = "\nPassword has been cleared from the clipboard."
-            inp_message += f"\n{default_inp_message()}"
-            calculations.clear_clipboard()
         elif inp_value == '':
             pass
         elif inp_value == 'E':
