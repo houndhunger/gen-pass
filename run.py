@@ -61,7 +61,6 @@ def main():
     end()
 
 
-
 # Start Password Generator Script
 if __name__ == "__main__":
     main()

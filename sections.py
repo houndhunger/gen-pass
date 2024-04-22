@@ -94,7 +94,6 @@ def settings_section(settings, rows):
         ):
             keys[i] = 'ACTIVE'
 
-
     # Mark wrong values with '!'
     status_min, status_max = calculations.check_sum_min_max(settings)
     min_m = ""
@@ -145,10 +144,9 @@ def settings_section(settings, rows):
         settings_table.insert(3, ["---"] * 5)
 
     content += f"\n{calculations.tabulate(
-        settings_table, headers = [
+        settings_table, headers=[
             'Operation key:', 'Operation:', 'Yes/No:', 'Min:   ', 'Max:   '
-            ]
-        )}"
+            ])}"
 
     print(content)
     return calculations.count_returns(content)

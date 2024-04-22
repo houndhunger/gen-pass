@@ -7,13 +7,16 @@ count return characters in a string, print and count return characters,
 tabulate data into a formatted table, generate passwords, and perform testing.
 
 Functions:
-    - check_sum_min_max(settings): Checks if 'SUM min' <= 'password length max' and vice versa.
+    - check_sum_min_max(settings): Checks if 'SUM min' <= 'password length
+    max' and vice versa.
     - sum_min_max(settings): Summarizes active minimal and maximal values.
     - get_terminal_size(): Retrieves the terminal size.
     - count_returns(string): Counts return characters in a string.
     - print_and_count(string): Prints a string and counts return characters.
-    - tabulate(table, headers): Draws a table from array data and returns it as a string.
-    - generate_password(settings): Generates passwords as a string or multiline string.
+    - tabulate(table, headers): Draws a table from array data and returns it
+    as a string.
+    - generate_password(settings): Generates passwords as a string or
+    multiline string.
 
 """
 # required for generate_password()
@@ -22,7 +25,6 @@ import string
 
 # required for get_terminal_size()
 import os
-
 
 
 def check_sum_min_max(settings):
@@ -149,7 +151,7 @@ def generate_password(settings):
             remaining_characters = ''.join(
                 random.choices(
                     ''.join(ps_comp[ch] for ch in yes_char_types),
-                    k = password_length - sum_lmin
+                    k=password_length - sum_lmin
                 )
             )
             password += remaining_characters
