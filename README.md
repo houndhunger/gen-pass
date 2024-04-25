@@ -73,10 +73,11 @@ The application consists of a command-line interface for user input and password
 ## Code validation
 Code passes flake8 and pylint validaation with 100% sucess validating run.py and all *.py modules.
 
+
 ## Test Cases
 
-### Change settings - SUM ok - generate password
-- User initiates settings, changes them and geanerate password.
+### Change settings - SUM OK - Generate Password
+- User initiates settings, changes them, and generates a password.
 
 | | | | | |
 |:-|:-|:-|:-|:-|
@@ -87,8 +88,8 @@ Code passes flake8 and pylint validaation with 100% sucess validating run.py and
 | 11. input "g" result | | | | 
 | ![11-input-result](readmedocs/testing-images/change-settings-sum-ok-generate-password-11-input-result.png) | ![blank](readmedocs/testing-images/blank.png) | ![blank](readmedocs/testing-images/blank.png) | ![blank](readmedocs/testing-images/blank.png) | ![blank](readmedocs/testing-images/blank.png) |
 
-### Change settings - sum problem - fix - generate password
-- User initiate settings, changes them, try to generate password, but SUM error is raised. Then user change settings again, SUM shows OK and geanerate password succesfully.
+### Change settings - SUM Problem - Fix - Generate Password
+- User initiates settings, changes them, tries to generate a password, but SUM error is raised. Then the user changes settings again, SUM shows OK, and generates a password successfully.
 
 | | | | | |
 |:-|:-|:-|:-|:-|
@@ -101,15 +102,15 @@ Code passes flake8 and pylint validaation with 100% sucess validating run.py and
 | 16. input "15" result | 17. input "g" | 18. input "g" result  | | | 
 | ![16-input-result](readmedocs/testing-images/change-settings-sum-problem-generate-password-16-input-result.png) | ![17-input-g](readmedocs/testing-images/change-settings-sum-problem-generate-password-17-input-g.png) | ![18-input-result](readmedocs/testing-images/change-settings-sum-problem-generate-password-18-input-result.png) | ![blank](readmedocs/testing-images/blank.png) | ![blank](readmedocs/testing-images/blank.png) |
 
-### Change settings - cancle settings
-- User initiate settings change and cancels it.
+### Change settings - Cancel Settings
+- User initiates settings change and cancels it.
 
 | | | | | |
 |:-|:-|:-|:-|:-|
 | 01. run script | 02. input "s" | 03. input "s" result | 04. input "\\" | 05. input "\\" result |
 | ![01-run](readmedocs/testing-images/change-settings-cancel-settings-01-run.png) | ![02-input-s](readmedocs/testing-images/change-settings-cancel-settings-02-input-s.png) | ![03-input-result](readmedocs/testing-images/change-settings-cancel-settings-03-input-result.png) | ![04-input-backslash](readmedocs/testing-images/change-settings-cancel-settings-04-input-backslash.png) | ![05-input-result](readmedocs/testing-images/change-settings-cancel-settings-05-input-result.png) |
 
-### Generate multiple passwords
+### Generate Multiple Passwords
 - User initiates settings change and cancels it.
 
 | | | | | |
@@ -120,7 +121,7 @@ Code passes flake8 and pylint validaation with 100% sucess validating run.py and
 | ![generate-multiple-passwords-06-input-g](readmedocs/testing-images/generate-multiple-passwords-06-input-g.png) | ![generate-multiple-passwords-07-input-result](readmedocs/testing-images/generate-multiple-passwords-07-input-result.png) | ![blank](readmedocs/testing-images/blank.png) | ![blank](readmedocs/testing-images/blank.png) | ![blank](readmedocs/testing-images/blank.png) |
 
 ### Help Recall
-- User initiates help and goes back to home screen.
+- User initiates help and goes back to the home screen.
 
 | | | | | |
 |:-|:-|:-|:-|:-|
@@ -135,28 +136,28 @@ Code passes flake8 and pylint validaation with 100% sucess validating run.py and
 | 01. run script | 02. input "e" | 03. input "e" result |
 | ![exiting-01](readmedocs/testing-images/exiting-01.png) | ![exiting-02-input-e](readmedocs/testing-images/exiting-02-input-e.png) | ![exiting-03-input-result](readmedocs/testing-images/exiting-03-input-result.png) | ![blank](readmedocs/testing-images/blank.png) | ![blank](readmedocs/testing-images/blank.png) |
 
-### Terminal resize
-- User keeps resizeing terminal by reducing rows.
+### Terminal Resize
+- User keeps resizing the terminal by reducing rows.
 
 | | | | | |
 |:-|:-|:-|:-|:-|
 | 01. run script | 02. input "e" | 03. input "e" result |
 | ![01-run](readmedocs/testing-images/terminal-resize-01-run.png) | ![settings-header](readmedocs/testing-images/terminal-resize-02-settings-header.png) | ![legend-header](readmedocs/testing-images/terminal-resize-03-legend-header.png) | ![04-sum-extra-line](readmedocs/testing-images/terminal-resize-04-sum-extra-line.png) | ![05-settings-table-line1](readmedocs/testing-images/terminal-resize-05-settings-table-line1.png) |
 
-## Deployment - Via Heroku pages
-- The website is publicly accessible on [Heroku deployment](https://gen-pass-21b0071589ae.herokuapp.com)
-- The website repository is hosted on [GitHub repository](https://github.com/houndhunger/gen-pass)
+## Deployment - Via Heroku Pages
+- The website is publicly accessible on [Heroku deployment](https://gen-pass-21b0071589ae.herokuapp.com).
+- The website repository is hosted on [GitHub repository](https://github.com/houndhunger/gen-pass).
 
 Upon completing any modifications:
-1. I added the changes using the command: ```git add .```
-2. Followed by committing them with a descriptive message: ```git commit -m “Something done”```
-3. Finally, I pushed the changes to the GitHub repository: ```git push```
-4. Re-Deployng Branch on [heroku - Deploy](https://dashboard.heroku.com/apps/gen-pass/deploy/github), then browser page was opend (https://gen-pass-21b0071589ae.herokuapp.com/) to display terminal reflected the updates.
+1. Added the changes using the command: `git add .`.
+2. Committed them with a descriptive message: `git commit -m “Something done”`.
+3. Finally, pushed the changes to the GitHub repository: `git push`.
+4. Re-deployed the branch on [Heroku - Deploy](https://dashboard.heroku.com/apps/gen-pass/deploy/github), then the browser page was opened (https://gen-pass-21b0071589ae.herokuapp.com/) to display terminal reflected the updates.
 
 ## Credits
-- Some online generators gave me an idea of basic password generator funcitons: [Lastpass](https://www.lastpass.com/features/password-generator), [Avst](https://www.avast.com/en-gb/random-password-generator#pc), [1password](https://1password.com/password-generator/), [nexcess](https://www.nexcess.net/web-tools/secure-password-generator/), [bitwarden](https://bitwarden.com/password-generator/#password-generator)
-- ChatGPT - served me a lot as a 24/7 tutor service, quick code validation, code formarting and much more.
-- Big Thank You to my mentor Rohit Sharma who points me right direction every time.
+- Some online generators gave me an idea of basic password generator functions: [LastPass](https://www.lastpass.com/features/password-generator), [Avast](https://www.avast.com/en-gb/random-password-generator#pc), [1Password](https://1password.com/password-generator/), [Nexcess](https://www.nexcess.net/web-tools/secure-password-generator/), [Bitwarden](https://bitwarden.com/password-generator/#password-generator).
+- ChatGPT - served me a lot as a 24/7 tutor service, quick code validation, code formatting, and much more.
+- Big Thank You to my mentor Rohit Sharma who points me in the right direction every time.
 
 ## License
 This project is open-source under the MIT License.
