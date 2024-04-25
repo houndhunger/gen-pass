@@ -72,7 +72,7 @@ The application consists of a command-line interface for user input and password
 
 ## Code validation
 Code passes flake8 and pylint validaation with 100% sucess validating run.py and all *.py modules.
-
+![01-run](readmedocs/validation.png)
 
 ## Test Cases
 
