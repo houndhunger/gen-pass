@@ -76,50 +76,69 @@ The Screen consists of:
 Code passes flake8 and pylint validaation with 100% sucess on tun.py and all *.py modules.
 
 ## Test Cases
-**CHANGE SETTINGS - SUM OK - GENERATE PASSWORD**
-**CHANGE SETTINGS - SUM PROBLEM - FIX - GENERATE PASSWORD**
-**CHANGE SETTINGS - CANCEL SETTINGS**
-**GENERATE MULTIPLE PASSWORDS**
-**HELP RECALL**
-**EXITING**
-**TERINAL RESIZE**
 
-### Test Cases
+### CHANGE SETTINGS - SUM OK - GENERATE PASSWORD
+- User initiates settings, changes them and geanerate password.
 
-**CHANGE SETTINGS - CANCEL SETTINGS**
-| A | A | A | A | A |
+| | | | | |
 |:-|:-|:-|:-|:-|
+| 01. run script | 02. input "u" | 03. input "u" result | 04. input "y" | 05. input "y" result  |
+| ![01-run](readmedocs/testing-images/change-settings-sum-ok-generate-password-01-run.png) | ![02-input-u](readmedocs/testing-images/change-settings-sum-ok-generate-password-02-input-u.png) | ![03-input-u-result](readmedocs/testing-images/change-settings-sum-ok-generate-password-03-input-u-result.png) | ![04-input-y](readmedocs/testing-images/change-settings-sum-ok-generate-password-04-input-y.png) | ![05-input-y-result](readmedocs/testing-images/change-settings-sum-ok-generate-password-05-input-y-result.png) 
+| 06. input "2" | 07. input "2" result | 08. input "4" | 09. input "4" result | 10. input "g" |
+| ![06-input-2](readmedocs/testing-images/change-settings-sum-ok-generate-password-06-input-2.png) | ![07-input-result](readmedocs/testing-images/change-settings-sum-ok-generate-password-07-input-result.png) | ![08-input-4](readmedocs/testing-images/change-settings-sum-ok-generate-password-08-input-4.png) | ![09-input-result](readmedocs/testing-images/change-settings-sum-ok-generate-password-09-input-result.png) | ![10-input-g](readmedocs/testing-images/change-settings-sum-ok-generate-password-10-input-g.png) 
+| 11. input "g" result | | | | 
+| ![11-input-result](readmedocs/testing-images/change-settings-sum-ok-generate-password-11-input-result.png) | ![blank](readmedocs/testing-images/blank.png) | ![blank](readmedocs/testing-images/blank.png) | ![blank](readmedocs/testing-images/blank.png) | ![blank](readmedocs/testing-images/blank.png) |
+
+### CHANGE SETTINGS - SUM PROBLEM - FIX - GENERATE PASSWORD
+- User initiate settings, changes them, try to generate paswword, but SUM error is raised. Then user change settings again, SUM shows OK and geanerate password succesfully.
+
+| | | | | |
+|:-|:-|:-|:-|:-|
+| 01. run script | 02. input "s" | 03. input "s" result | 04. input "y" | 05. input "y" result  |
+| ![01-run](readmedocs/testing-images/change-settings-sum-problem-generate-password-01-run.png) | ![02-input-s](readmedocs/testing-images/change-settings-sum-problem-generate-password-02-input-s.png) | ![03-input-result](readmedocs/testing-images/change-settings-sum-problem-generate-password-03-input-result.png) | ![04-input-y](readmedocs/testing-images/change-settings-sum-problem-generate-password-04-input-y.png) | ![05-input-result](readmedocs/testing-images/change-settings-sum-problem-generate-password-05-input-result.png) |
+| 06. input "u" | 07. input "8" result | 08. input "15" | 09. input "15" result  | 10. input "g" |
+| ![06-input-8](readmedocs/testing-images/change-settings-sum-problem-generate-password-06-input-8.png) | ![07-input-result](readmedocs/testing-images/change-settings-sum-problem-generate-password-07-input-result.png) | ![08-input-15](readmedocs/testing-images/change-settings-sum-problem-generate-password-08-input-15.png) | ![09-input-result](readmedocs/testing-images/change-settings-sum-problem-generate-password-09-input-result.png) | ![10-input-g](readmedocs/testing-images/change-settings-sum-problem-generate-password-10-input-g.png) |
+| 11. input "g" result | 12. input "l" | 13. input "l" result  | 14. input "Return" | 15. input "15" result |
+| ![11-input-result](readmedocs/testing-images/change-settings-sum-problem-generate-password-11-input-result.png) | ![12-input-l](readmedocs/testing-images/change-settings-sum-problem-generate-password-12-input-l.png) | ![13-input-result](readmedocs/testing-images/change-settings-sum-problem-generate-password-13-input-result.png) | ![14-input-enter-and-result](readmedocs/testing-images/change-settings-sum-problem-generate-password-14-input-enter-and-result.png) | ![15-input-15](readmedocs/testing-images/change-settings-sum-problem-generate-password-15-input-15.png) |
+| 16. input "15" result | 17. input "g" | 18. input "g" result  | | | 
+| ![16-input-result](readmedocs/testing-images/change-settings-sum-problem-generate-password-16-input-result.png) | ![17-input-g](readmedocs/testing-images/change-settings-sum-problem-generate-password-17-input-g.png) | ![18-input-result](readmedocs/testing-images/change-settings-sum-problem-generate-password-18-input-result.png) | ![blank](readmedocs/testing-images/blank.png) | ![blank](readmedocs/testing-images/blank.png) |
+
+### CHANGE SETTINGS - CANCEL SETTINGS
+- User initiate settings change and cancels it.
+
+| | | | | |
+|:-|:-|:-|:-|:-|
+| 01. run script | 02. input "s" | 03. input "s" result | 04. input "\\" | 05. input "\\" result |
 | ![01-run](readmedocs/testing-images/change-settings-cancel-settings-01-run.png) | ![02-input-s](readmedocs/testing-images/change-settings-cancel-settings-02-input-s.png) | ![03-input-result](readmedocs/testing-images/change-settings-cancel-settings-03-input-result.png) | ![04-input-backslash](readmedocs/testing-images/change-settings-cancel-settings-04-input-backslash.png) | ![05-input-result](readmedocs/testing-images/change-settings-cancel-settings-05-input-result.png) |
 
----
----
+### GENERATE MULTIPLE PASSWORDS
+- User initiate settings change and cancels it.
 
-**CHANGE SETTINGS - SUM OK - GENERATE PASSWORD**
-| A | A | A | A | A |
+| | | | | |
 |:-|:-|:-|:-|:-|
-| ![01-run](readmedocs/testing-images/change-settings-sum-ok-generate-password-01-run.png) | ![02-input-u](readmedocs/testing-images/change-settings-sum-ok-generate-password-02-input-u.png) | ![03-input-u-result](readmedocs/testing-images/change-settings-sum-ok-generate-password-03-input-u-result.png) | ![04-input-y](readmedocs/testing-images/change-settings-sum-ok-generate-password-04-input-y.png) | ![05-input-y-result](readmedocs/testing-images/change-settings-sum-ok-generate-password-05-input-y-result.png) 
-| A | A | A | A | A | 
-| ![06-input-2](readmedocs/testing-images/change-settings-sum-ok-generate-password-06-input-2.png) | ![07-input-result](readmedocs/testing-images/change-settings-sum-ok-generate-password-07-input-result.png) | ![08-input-4](readmedocs/testing-images/change-settings-sum-ok-generate-password-08-input-4.png) | ![09-input-result](readmedocs/testing-images/change-settings-sum-ok-generate-password-09-input-result.png) | ![10-input-g](readmedocs/testing-images/change-settings-sum-ok-generate-password-10-input-g.png) 
-| A | | | | | 
-| ![11-input-result](readmedocs/testing-images/change-settings-sum-ok-generate-password-11-input-result.png) | ![blank](readmedocs/blank.png) | ![blank](readmedocs/blank.png) | ![blank](readmedocs/blank.png) | ![blank](readmedocs/blank.png) |
+| 01. run script | 02. input "s" | 03. input "s" result | 04. input "\\" | 05. input "\\" result |
+| ![generate-multiple-passwords-01-run](readmedocs/testing-images/generate-multiple-passwords-01-run.png) | ![generate-multiple-passwords-02-input-b](readmedocs/testing-images/generate-multiple-passwords-02-input-b.png) | ![generate-multiple-passwords-03-input-result](readmedocs/testing-images/generate-multiple-passwords-03-input-result.png) | ![generate-multiple-passwords-04-input-3](readmedocs/testing-images/generate-multiple-passwords-04-input-3.png) | ![generate-multiple-passwords-05-input-result](readmedocs/testing-images/generate-multiple-passwords-05-input-result.png) |
+| 06.  input "g"  | 07. input "g" result | | | |
+| ![generate-multiple-passwords-06-input-g](readmedocs/testing-images/generate-multiple-passwords-06-input-g.png) | ![generate-multiple-passwords-07-input-result](readmedocs/testing-images/generate-multiple-passwords-07-input-result.png) | ![blank](readmedocs/testing-images/blank.png) | ![blank](readmedocs/testing-images/blank.png) | ![blank](readmedocs/testing-images/blank.png) |
 
----
----
+### HELP RECALL
+- User initiates help.
 
-**CHANGE SETTINGS - SUM PROBLEM - FIX - GENERATE PASSWORD**
-| A | A | A | A | A 
+| | | | | |
 |:-|:-|:-|:-|:-|
-| ![01-run](readmedocs/testing-images/change-settings-sum-problem-generate-password-01-run.png) | ![02-input-s](readmedocs/testing-images/change-settings-sum-problem-generate-password-02-input-s.png) | ![03-input-result](readmedocs/testing-images/change-settings-sum-problem-generate-password-03-input-result.png) | ![04-input-y](readmedocs/testing-images/change-settings-sum-problem-generate-password-04-input-y.png) | ![05-input-result](readmedocs/testing-images/change-settings-sum-problem-generate-password-05-input-result.png) |
-| A | A | A | A | A 
-| ![06-input-8](readmedocs/testing-images/change-settings-sum-problem-generate-password-06-input-8.png) | ![07-input-result](readmedocs/testing-images/change-settings-sum-problem-generate-password-07-input-result.png) | ![08-input-15](readmedocs/testing-images/change-settings-sum-problem-generate-password-08-input-15.png) | ![09-input-result](readmedocs/testing-images/change-settings-sum-problem-generate-password-09-input-result.png) | ![10-input-g](readmedocs/testing-images/change-settings-sum-problem-generate-password-10-input-g.png) |
-| A | A | A | A | A 
-| ![11-input-result](readmedocs/testing-images/change-settings-sum-problem-generate-password-11-input-result.png) | ![12-input-l](readmedocs/testing-images/change-settings-sum-problem-generate-password-12-input-l.png) | ![13-input-result](readmedocs/testing-images/change-settings-sum-problem-generate-password-13-input-result.png) | ![14-input-enter-and-result](readmedocs/testing-images/change-settings-sum-problem-generate-password-14-input-enter-and-result.png) | ![15-input-15](readmedocs/testing-images/change-settings-sum-problem-generate-password-15-input-15.png) |
-| A | A | A | | | 
-| ![16-input-result](readmedocs/testing-images/change-settings-sum-problem-generate-password-16-input-result.png) | ![17-input-g](readmedocs/testing-images/change-settings-sum-problem-generate-password-17-input-g.png) | ![18-input-result](readmedocs/testing-images/change-settings-sum-problem-generate-password-18-input-result.png) | ![blank](readmedocs/blank.png) | ![blank](readmedocs/blank.png) |
+| 01. run script | 02. input "sh" | 03. input "h" result |04. any key to home screen | |
+| ![help-recall-01-run](readmedocs/testing-images/help-recall-01-run.png) | ![help-recall-02-input](readmedocs/testing-images/help-recall-02-input.png) | ![help-recall-03-input-result](readmedocs/testing-images/help-recall-03-input-result.png) | ![help-recall-04-input-anykey-result](readmedocs/testing-images/help-recall-04-input-anykey-result.png) | ![blank](readmedocs/testing-images/blank.png) |
 
----
----
+### EXITING
+- User exits the script.
 
+| | | | | |
+|:-|:-|:-|:-|:-|
+| 01. run script | 02. input "e" | 03. input "e" result |
+| ![exiting-01](readmedocs/testing-images/exiting-01.png) | ![exiting-02-input-e](readmedocs/testing-images/exiting-02-input-e.png) | ![exiting-03-input-result](readmedocs/testing-images/exiting-03-input-result.png) | ![blank](readmedocs/testing-images/blank.png) | ![blank](readmedocs/testing-images/blank.png) |
+
+
+### TERMINAL RESIZE
 
 ## Deployment - Via Heroku pages
 - The website is publicly accessible on [Heroku deployment](https://gen-pass-21b0071589ae.herokuapp.com)
