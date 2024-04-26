@@ -143,10 +143,8 @@ def settings_section(settings, rows):
     if rows >= 22:
         settings_table.insert(3, ["---"] * 5)
 
-    content += f"\n{calculations.tabulate(
-        settings_table, headers=[
-            'Operation key:', 'Operation:', 'Yes/No:', 'Min:   ', 'Max:   '
-            ])}"
+    header = ['Operation key:', 'Operation:', 'Yes/No:', 'Min:   ', 'Max:   ']
+    content += f"\n{calculations.tabulate(settings_table, headers=header)}"
 
     print(content)
     return calculations.count_returns(content)
