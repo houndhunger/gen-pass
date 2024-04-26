@@ -36,6 +36,7 @@ The application consists of a command-line interface for user input and password
 ## Development Process
 1. **Concept of Functions:** Defining functions that the password generator will provide.
 2. **Logical Flow:** Creating a conceptual diagram to achieve password generation based on proposed functions.
+![flow chart](readmedocs/flow-chart.png)
 3. **Initial Setup:** Setting up the command-line interface and basic structure.
 4. **Output Display:** Structuring the screen to provide necessary information and display the generated password.
 5. **Random Password Generation:** Developing algorithms for password generation based on provided parameters.
@@ -59,8 +60,16 @@ The application consists of a command-line interface for user input and password
 - **Line Breaking:** Adhered to coding standards when formatting the code to comply with linters like PEP8.
 
 ## Unsolved Bugs
-- **Clipboard:** Copying to clipboard functionality doesn't work and has been removed for the time being.
+- **Clipboard:** Copying to the clipboard functionality doesn't work and has been removed for the time being.
 - **Fullscreen Discrepancies:** When nearing fullscreen limits (between 22-27 rows), the top of the page sometimes doesn't display optimally, but all important information remains visible.
+- **Fullscreen when batch generate:** When batch generating is set to more than a few passwords, like 10, full-screen view won't work.
+
+| | | | | |
+|:-|:-|:-|:-|:-|
+| 01. run script | 02. input "b" | 03. input "b" result | 04. input "10" | 05. input "10" result |
+| ![01-run](readmedocs/testing-images/batch-01-run.png) | ![02-input-b](readmedocs/testing-images/batch-02-input-b.png) | ![03-input-result](readmedocs/testing-images/batch-03-input-result.png) | ![04-input-10](readmedocs/testing-images/batch-04-input-10.png) | ![05-input-result](readmedocs/testing-images/batch-05-input-result.png) |
+| 06.  input "g"  | 07. input "g" result | | | |
+| ![06-input-g](readmedocs/testing-images/batch-06-input-g.png) | ![07-input-result](readmedocs/testing-images/batch-07-input-result.png) | ![blank](readmedocs/testing-images/blank.png) | ![blank](readmedocs/testing-images/blank.png) | ![blank](readmedocs/testing-images/blank.png) |
 
 ## Technologies Used
 - **Python**: Used for backend development and scripting.
@@ -134,7 +143,7 @@ Code passes flake8 and pylint validaation with 100% sucess validating run.py and
 | | | | | |
 |:-|:-|:-|:-|:-|
 | 01. run script | 02. input "e" | 03. input "e" result |
-| ![exiting-01](readmedocs/testing-images/exiting-01.png) | ![exiting-02-input-e](readmedocs/testing-images/exiting-02-input-e.png) | ![exiting-03-input-result](readmedocs/testing-images/exiting-03-input-result.png) | ![blank](readmedocs/testing-images/blank.png) | ![blank](readmedocs/testing-images/blank.png) |
+| ![exiting-01-run](readmedocs/testing-images/exiting-01-run.png) | ![exiting-02-input-e](readmedocs/testing-images/exiting-02-input-e.png) | ![exiting-03-input-result](readmedocs/testing-images/exiting-03-input-result.png) | ![blank](readmedocs/testing-images/blank.png) | ![blank](readmedocs/testing-images/blank.png) |
 
 ### Terminal Resize
 - User keeps resizing the terminal by reducing rows.
